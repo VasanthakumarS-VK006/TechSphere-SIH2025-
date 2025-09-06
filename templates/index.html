@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Autocomplete Search</title>
+	<style>
+		.autocomplete-container {
+			margin: 50px;
+			position: relative;
+			width: 300px;
+			display: flex;
+			/* Enable Flexbox */
+			align-items: center;
+			/* Vertically center items */
+			gap: 10px;
+			/* Space between label and input */
+		}
+
+		#search-input {
+			width: 100%;
+			/* Input takes remaining space */
+			padding: 8px;
+			font-size: 16px;
+		}
+
+		#suggestions {
+			position: absolute;
+			top: 100%;
+			/* Position below the input */
+			width: 100%;
+			border: 1px solid #ccc;
+			max-height: 200px;
+			overflow-y: auto;
+			background: white;
+			display: none;
+		}
+
+		.suggestion-item {
+			padding: 8px;
+			cursor: pointer;
+		}
+
+		.suggestion-item:hover {
+			background-color: #f0f0f0;
+		}
+	</style>
+
+</head>
+
+<body>
+	<div class="autocomplete-container">
+		<label for="NAMC">
+			<h3>NAMC Code: </h3>
+		</label>
+		<input type="text" id="search-input" placeholder="Search..." style="min-width: 350px;">
+		<div id="suggestions"></div>
+	</div>
+	<button id="submit-button" disabled>Submit</button>
+	<div id="result"></div>
+
+	<script>
+		// script.js
+		const searchInput = document.getElementById('search-input');
+		const suggestionsContainer = document.getElementById('suggestions');
+		const submitButton = document.getElementById('submit-button');
+		const resultDiv = document.getElementById('result');
+
+		let isSuggestionSelected = false; // Track if a suggestion was selected
+
+		searchInput.addEventListener('input', async () => {
+			const query = searchInput.value.trim();
+			isSuggestionSelected = false; // Reset on new input
+			submitButton.disabled = true; // Disable button until suggestion is selected
+
+			if (query.length === 0) {
+				suggestionsContainer.style.display = 'none';
+				resultDiv.innerHTML = '';
+				return;
+			}
+
+			try {
+				const response = await fetch(`http://127.0.0.1:5000/api/suggestions?q=${encodeURIComponent(query)}`);
+				if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
+
+				const suggestions = await response.json();
+				console.log('Suggestions:', suggestions); // Debug
+
+				suggestionsContainer.innerHTML = '';
+
+				if (suggestions.length > 0) {
+					suggestions.forEach(item => {
+						const div = document.createElement('div');
+						div.className = 'suggestion-item';
+						div.textContent = item; // English term
+						div.addEventListener('click', () => {
+							searchInput.value = item; // Set input value
+							suggestionsContainer.style.display = 'none';
+							isSuggestionSelected = true; // Mark suggestion as selected
+							submitButton.disabled = false; // Enable submit button
+							resultDiv.innerHTML = ''; // Clear previous results
+						});
+						suggestionsContainer.appendChild(div);
+					});
+					suggestionsContainer.style.display = 'block';
+				} else {
+					suggestionsContainer.style.display = 'none';
+				}
+			} catch (error) {
+				console.error('Error fetching suggestions:', error);
+				suggestionsContainer.style.display = 'none';
+				resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
+			}
+		});
+
+		// Handle submit button click
+		submitButton.addEventListener('click', async () => {
+			if (!isSuggestionSelected) {
+				resultDiv.innerHTML = '<p>Please select a suggestion from the list.</p>';
+				return;
+			}
+
+			const selectedTerm = searchInput.value.trim();
+			if (!selectedTerm) {
+				resultDiv.innerHTML = '<p>No term selected.</p>';
+				return;
+			}
+
+			try {
+				const response = await fetch('http://127.0.0.1:5000/api/submit', {
+					method: 'POST',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify({term: selectedTerm}),
+				});
+				if (!response.ok) throw new Error(`Submit failed: ${response.status}`);
+
+				const result = await response.json();
+				console.log('Submit API response:', result); // Debug
+
+				// Display result
+				resultDiv.innerHTML = `
+      <p><strong>NAMC ID:</strong> ${result.code || 'N/A'}</p>
+      <p><strong>English Term:</strong> ${result.english_term || 'N/A'}</p>
+      <p><strong>Siddha Term:</strong> ${result.siddha_term || 'N/A'}</p>
+    `;
+			} catch (error) {
+				console.error('Error submitting term:', error);
+				resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
+			}
+		});
+
+		// Hide suggestions when clicking outside
+		document.addEventListener('click', (e) => {
+			if (!suggestionsContainer.contains(e.target) && e.target !== searchInput) {
+				suggestionsContainer.style.display = 'none';
+			}
+		});
+	</script>
+</body>
+
+</html>

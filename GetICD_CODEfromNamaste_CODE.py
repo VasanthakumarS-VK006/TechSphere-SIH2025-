@@ -22,7 +22,7 @@ def getDetailsFromICD(defintion):
 
 
 
-    uri = f"https://id.who.int/icd/release/11/2024-01/mms/search?q={defintion}"
+    uri = f"https://id.who.int/icd/release/11/2025-01/mms/search?q=Manjal"
 
     headers = {'Authorization':  'Bearer '+token, 
                'Accept': 'application/json', 
@@ -37,7 +37,7 @@ def getDetailsFromICD(defintion):
     # Parse JSON
     data = response.json()
 
-    if data.get("destinationEntites", None):
+    if data.get("destinationEntities", None):
         for entity in data.get("destinationEntities", []):
             print("ICD-11 Code: " , entity.get("theCode"), "  Title: " , entity.get("title"))
 

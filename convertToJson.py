@@ -13,10 +13,17 @@ with open("Data/Siddha.csv") as file:
 
     for row in csv_reader:
         data.append({
-                "code": row["NAMC_CODE"],
-                "display": row["Short_definition"],
-                "definition": row["Long_definition"],
-            })
+            "code": row["NAMC_CODE"],
+            "display": row["Short_definition"],
+            "definition": row["Long_definition"],
+            "designation": [
+                {
+                    "language": "en",
+                    "value": row["NAMC_TERM"]
+
+                }
+            ]
+        })
 
 
 codesystem = {
@@ -35,8 +42,4 @@ codesystem = {
 
 
 with open("Data/SiddhaJson.json", mode='w') as file:
-    json.dump(codesystem, file, indent = 4, ensure_ascii= False)
-
-
-
-
+    json.dump(codesystem, file, indent=4, ensure_ascii=False)
