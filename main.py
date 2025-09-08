@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from flask_cors import CORS
-from extraFunctions import getDetailsFromICD
+from extraFunctions import getICDDetailsFromEnglishDefinition, getICDDetailsFromSiddhaDefinition
 import json
 
 
@@ -36,7 +36,9 @@ def submit_term():
     request_data = request.get_json()
     items = request_data.get("term", "").split(",")
 
-    data = getDetailsFromICD(items[1])
+    print(items[2])
+    data = getICDDetailsFromEnglishDefinition(items[1])
+    getICDDetailsFromSiddhaDefinition(items[2])
 
     # res = {"code": "AB",
     #        "english_term": "Jaundice",

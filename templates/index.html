@@ -44,6 +44,7 @@
 		.suggestion-item:hover {
 			background-color: #f0f0f0;
 		}
+
 	</style>
 
 </head>
@@ -54,9 +55,11 @@
 			<h3>NAMC Code: </h3>
 		</label>
 		<input type="text" id="search-input" placeholder="Search..." style="min-width: 350px;">
-		<div id="suggestions"></div>
+		<div id="suggestions" class="suggestion-item"></div>
 	</div>
+
 	<button id="submit-button" disabled>Submit</button>
+	<input type="text" name="result-input" placeholder="ICD...">
 	<div id="result"></div>
 
 	<script>
@@ -64,6 +67,7 @@
 		const searchInput = document.getElementById('search-input');
 		const suggestionsContainer = document.getElementById('suggestions');
 		const submitButton = document.getElementById('submit-button');
+		const resultInput = document.getElementById('result-input');
 		const resultDiv = document.getElementById('result');
 
 		let isSuggestionSelected = false; // Track if a suggestion was selected
@@ -75,7 +79,6 @@
 
 			if (query.length === 0) {
 				suggestionsContainer.style.display = 'none';
-				resultDiv.innerHTML = '';
 				return;
 			}
 
@@ -98,7 +101,6 @@
 							suggestionsContainer.style.display = 'none';
 							isSuggestionSelected = true; // Mark suggestion as selected
 							submitButton.disabled = false; // Enable submit button
-							resultDiv.innerHTML = ''; // Clear previous results
 						});
 						suggestionsContainer.appendChild(div);
 					});
@@ -109,7 +111,6 @@
 			} catch (error) {
 				console.error('Error fetching suggestions:', error);
 				suggestionsContainer.style.display = 'none';
-				resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
 			}
 		});
 
@@ -137,12 +138,30 @@
 				const result = await response.json();
 				console.log('Submit API response:', result); // Debug
 
-				// Display result
-				resultDiv.innerHTML = `
-      <p><strong>NAMC ID:</strong> ${result.code || 'N/A'}</p>
-      <p><strong>English Term:</strong> ${result.english_term || 'N/A'}</p>
-      <p><strong>Siddha Term:</strong> ${result.siddha_term || 'N/A'}</p>
-    `;
+
+
+
+				if (result.length > 0) {
+					result.forEach(item => {
+						const di = document.createElement('div');
+						di.className = 'result-item';
+						di.textContent = item; // English term
+						di.addEventListener('click', () => {
+							resultInput.value = item; // Set input value
+							isResultSelected = true; // Mark suggestion as selected
+							resultDiv.innerHTML = ''; // Clear previous results
+						});
+						resultDiv.appendChild(di);
+					});
+					resultDiv.style.display = 'block';
+				} else {
+					resultDiv.style.display = 'none';
+				}
+
+
+
+
+
 			} catch (error) {
 				console.error('Error submitting term:', error);
 				resultDiv.innerHTML = `<p>Error: ${error.message}</p>`;
