@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "Healthcare + Book Request API",
-    "description": "API demo combining FHIR Condition resource (NAMC + ICD-11) and Book Request example.",
+    "title": "EMR API",
+    "description": "API demo combining FHIR Condition resource (NAMC + ICD-11).",
     "version": "1.0.0",
     "license": {
       "name": "MIT",
@@ -20,16 +20,12 @@
       "name": "Condition Request",
       "description": "Create FHIR Condition resources"
     },
-    {
-      "name": "Book Request",
-      "description": "Example API for requesting and returning book requests"
-    }
   ],
   "paths": {
     "/convert/post": {
       "get": {
-        "tags": ["Book Request"],
-        "summary": "Returns bookRequests",
+        "tags": ["NAMC Convertion"],
+        "summary": "Returns ICD Code",
         "parameters": [
           {
             "name": "limit",
@@ -93,31 +89,6 @@
             "content": {
               "application/json": {
                 "schema": { "$ref": "#/components/schemas/OperationOutcome" }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/request/{id}": {
-      "get": {
-        "tags": ["Book Request"],
-        "summary": "Get a request by ID",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "description": "ID of the request",
-            "schema": { "type": "string" }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": { "$ref": "#/components/schemas/bookRequest" }
               }
             }
           }
@@ -255,20 +226,6 @@
           }
         }
       },
-      "bookRequest": {
-        "type": "object",
-        "properties": {
-          "title": { "type": "string" },
-          "email": { "type": "string", "format": "email" },
-          "id": { "type": "string" }
-        }
-      },
-      "bookRequests": {
-        "type": "object",
-        "properties": {
-          "bookRequest": { "$ref": "#/components/schemas/bookRequest" }
-        }
-      }
     }
   }
 }
