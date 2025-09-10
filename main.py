@@ -127,6 +127,81 @@ def convert():
 
     return jsonify(data)
 
+
+@app.route("/api/returnJson", methods=["POST"])
+def returnJson():
+    data = request.get_json()
+    print(data)
+
+    icd = data.get("icd")
+    namc = data.get("namc")
+
+    
+
+    json_str = f'''{{
+      "resourceType": "Condition",
+      "id": "cond-123",
+      "meta": {{
+        "versionId": "1",
+        "lastUpdated": "2025-09-10T21:28:00+05:30"
+      }},
+      "identifier": [
+        {{
+          "system": "http://abdm.gov.in/ABHA",
+          "value": "PAT123456"
+        }}
+      ],
+      "clinicalStatus": {{
+        "coding": [
+          {{
+            "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+            "code": "active"
+          }}
+        ]
+      }},
+      "verificationStatus": {{
+        "coding": [
+          {{
+            "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+            "code": "confirmed"
+          }}
+        ]
+      }},
+      "code": {{
+        "coding": [
+          {{
+            "system": "https://ndhm.gov.in/fhir/CodeSystem/namc",
+            "code": "{namc.split(',')[0]}",
+            "display": "{namc.split(',')[1]}"
+          }},
+          {{
+            "system": "http://id.who.int/icd11/mms",
+            "code": "{icd.split(',')[0]}",
+            "display": "{icd.split(',')[1]}"
+          }}
+        ]
+      }},
+      "subject": {{
+        "reference": "Patient/PAT123456",
+        "identifier": {{
+          "system": "http://abdm.gov.in/ABHA",
+          "value": "PAT123456"
+        }}
+      }},
+      "onsetDateTime": "2025-09-10",
+      "recordedDate": "2025-09-10T21:28:00+05:30",
+      "recorder": {{
+        "reference": "Practitioner/DR987654",
+        "display": "Dr. Smith"
+      }}
+    }}'''
+
+
+    print(json_str)
+
+    return jsonify('"Msg":"Success"')
+    
+
 if __name__ == "__main__":
 
     with app.app_context():

@@ -87,10 +87,33 @@
 					<div id="result" class="results"></div>
 				</div>
 			</div>
+
+			<div class="col-2 mt-5 pt-3">
+
+				<button id="return-button" style="max-width: 100px; max-height: 50px;" onclick="returnJson()">Return</button>
+			</div>
 		</div>
 	</div>
 
 	<script>
+
+
+		function returnJson() {
+			const icdValue = document.getElementById("result-input").value;
+			const namcValue = document.getElementById("search-input").value;
+
+			const payload = {icd: icdValue, namc:namcValue};
+
+			fetch("http://127.0.0.1:5000/api/returnJson", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json"
+				},
+				body: JSON.stringify(payload)
+			})
+				.catch(error => console.error("Error:", error));
+
+		}
 		// script.js
 		const searchInput = document.getElementById('search-input');
 		const suggestionsContainer = document.getElementById('suggestions');

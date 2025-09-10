@@ -1,6 +1,7 @@
 import urllib3
 import json
 import requests
+import  re
 
 
 def getICDDetailsFromEnglishDefinition(defintion):
@@ -33,8 +34,7 @@ def getICDDetailsFromEnglishDefinition(defintion):
 
     # Parse JSON
     data = response.json()
-    print(data)
-    res = [[item.get("theCode"), item.get("title")]
+    res = [[item.get("theCode"), re.sub(r'<.*?>', '',item.get("title"))]
            for item in data.get("destinationEntities", None)]
 
     # for item in data.get("destinationEntities", None):
