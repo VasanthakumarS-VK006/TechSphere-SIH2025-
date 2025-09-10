@@ -98,7 +98,7 @@ def getICDDetailsFromSiddhaDefinition(defintion):
 
 def verifyABHAToken(token):
 
-    token_id = token.split(" ")[1]
-    print(token_id)
+    # token_id = token.split(" ")[1]
+    print(token)
 
 

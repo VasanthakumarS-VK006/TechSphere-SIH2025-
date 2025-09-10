@@ -1,9 +1,9 @@
 {
-  "openapi": "3.0.0",
+  "openapi": "3.0.3",
   "info": {
-    "description": "sean",
+    "title": "Healthcare + Book Request API",
+    "description": "API demo combining FHIR Condition resource (NAMC + ICD-11) and Book Request example.",
     "version": "1.0.0",
-    "title": "Seans-Python3-Flask-Rest-Boilerplate",
     "license": {
       "name": "MIT",
       "url": "https://opensource.org/licenses/MIT"
@@ -11,145 +11,265 @@
   },
   "servers": [
     {
-      "url": "/api"
+      "url": "http://127.0.0.1:5000/api",
+      "description": "Local development server"
     }
   ],
   "tags": [
     {
+      "name": "Condition Request",
+      "description": "Create FHIR Condition resources"
+    },
+    {
       "name": "Book Request",
-      "description": "Example API for requesting and return book requests"
+      "description": "Example API for requesting and returning book requests"
     }
   ],
   "paths": {
-    "/suggestions/post": {
+    "/convert/post": {
       "get": {
-        "tags": [
-          "Book Request"
-        ],
+        "tags": ["Book Request"],
         "summary": "Returns bookRequests",
-		"parameters": [
-				  {
-					"name": "limit",
-					"in": "query",
-					"schema": { "type": "integer", "default": 10 }
-				  },
-				  {
-					"name": "sort",
-					"in": "query",
-					"schema": { "type": "string", "enum": ["asc", "desc"] }
-				  },
-				  {
-					"name": "search",
-					"in": "query",
-					"schema": { "type": "string" }
-				  }
-				],
-
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": { "type": "integer", "default": 10 }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": { "type": "string", "enum": ["asc", "desc"] }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": { "type": "string" }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
-            "schema": {
-              "$ref": "#/components/schemas/bookRequests"
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/bookRequests" }
+              }
             }
           }
         }
       },
 
       "post": {
-        "tags": [
-          "Book Request"
+        "tags": ["Condition Request"],
+        "summary": "Create a FHIR Condition resource",
+        "description": "Creates a Condition resource with NAMC + ICD-11 codes.",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "header",
+            "schema": { "type": "string", "default": "abha-1294875" }
+          }
         ],
-        "summary": "Create a new book request system",
-
-		"parameters": [
-				  {
-					"name": "token",
-					"in": "header",
-					"schema": { "type": "string", "default": "abha-1294875" }
-				  },
-				  {
-					"name": "search",
-					"in": "header",
-					"schema": { "type": "string" }
-				  }
-				],
-
         "requestBody": {
-          "description": "Book Request Post Object",
+          "description": "Condition resource to create",
           "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/bookRequestPostBody"
-              }
+              "schema": { "$ref": "#/components/schemas/Condition" }
             }
           }
         },
-        "produces": [
-          "application/json"
-        ],
         "responses": {
           "201": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/components/schemas/id"
+            "description": "Condition created successfully",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Condition" }
+              }
             }
           },
           "400": {
-            "description": "Failed. Bad post data."
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/OperationOutcome" }
+              }
+            }
           }
         }
       }
     },
     "/request/{id}": {
-      "parameters": [
-        {
-          "name": "id",
-          "in": "path",
-          "required": true,
-          "description": "ID of the cat that we want to match",
-          "type": "string"
-        }
-      ],
-    }
-  },
-  "components": {
-    "schemas": {
-      "id": {
-        "properties": {
-          "uuid": {
-            "type": "string"
+      "get": {
+        "tags": ["Book Request"],
+        "summary": "Get a request by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID of the request",
+            "schema": { "type": "string" }
           }
-        }
-      },
-      "bookRequestPostBody": {
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string",
-            "format": "string"
-          },
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "id": {
-            "type": "string",
-            "format": "id"
-          },
-        }
-      },
-      "bookRequests": {
-        "type": "object",
-        "properties": {
-          "bookRequest": {
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/components/schemas/bookRequest"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/bookRequest" }
+              }
             }
           }
         }
       }
     }
+  },
+  "components": {
+    "schemas": {
+      "Condition": {
+        "type": "object",
+        "properties": {
+          "resourceType": { "type": "string", "example": "Condition" },
+          "id": { "type": "string", "example": "789" },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "versionId": { "type": "string", "example": "1" },
+              "lastUpdated": {
+                "type": "string",
+                "format": "date-time",
+                "example": "2025-09-10T06:48:00+05:30"
+              }
+            }
+          },
+          "identifier": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "system": { "type": "string", "example": "http://abdm.gov.in/ABHA" },
+                "value": { "type": "string", "example": "123456" }
+              }
+            }
+          },
+          "clinicalStatus": {
+            "type": "object",
+            "properties": {
+              "coding": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "system": {
+                      "type": "string",
+                      "example": "http://terminology.hl7.org/CodeSystem/condition-clinical"
+                    },
+                    "code": { "type": "string", "example": "active" }
+                  }
+                }
+              }
+            }
+          },
+          "verificationStatus": {
+            "type": "object",
+            "properties": {
+              "coding": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "system": {
+                      "type": "string",
+                      "example": "http://terminology.hl7.org/CodeSystem/condition-ver-status"
+                    },
+                    "code": { "type": "string", "example": "confirmed" }
+                  }
+                }
+              }
+            }
+          },
+          "code": {
+            "type": "object",
+            "properties": {
+              "coding": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "system": { "type": "string", "example": "https://ndhm.gov.in/fhir/CodeSystem/namc" },
+                    "code": { "type": "string", "example": "AB" },
+                    "display": { "type": "string", "example": "Jaundice" }
+                  }
+                }
+              },
+              "text": { "type": "string", "example": "Jaundice" }
+            }
+          },
+          "subject": {
+            "type": "object",
+            "properties": {
+              "reference": { "type": "string", "example": "Patient/123456" },
+              "identifier": {
+                "type": "object",
+                "properties": {
+                  "system": { "type": "string", "example": "http://abdm.gov.in/ABHA" },
+                  "value": { "type": "string", "example": "123456" }
+                }
+              }
+            }
+          },
+          "onsetDateTime": {
+            "type": "string",
+            "format": "date",
+            "example": "2025-09-10"
+          },
+          "recordedDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2025-09-10T06:48:00+05:30"
+          },
+          "recorder": {
+            "type": "object",
+            "properties": {
+              "reference": { "type": "string", "example": "Practitioner/12345" },
+              "display": { "type": "string", "example": "Dr. Smith" }
+            }
+          }
+        }
+      },
+      "OperationOutcome": {
+        "type": "object",
+        "properties": {
+          "resourceType": { "type": "string", "example": "OperationOutcome" },
+          "issue": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "severity": { "type": "string" },
+                "code": { "type": "string" },
+                "details": { "type": "object" }
+              }
+            }
+          }
+        }
+      },
+      "bookRequest": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "id": { "type": "string" }
+        }
+      },
+      "bookRequests": {
+        "type": "object",
+        "properties": {
+          "bookRequest": { "$ref": "#/components/schemas/bookRequest" }
+        }
+      }
+    }
   }
 }
+

@@ -6,6 +6,7 @@ import json
 
 
 app = Flask(__name__)
+CORS(app)   # Enable CORS
 
 SWAGGER_URL = '/swagger'
 API_URL = '/static/swagger.json'
@@ -52,32 +53,33 @@ def get_suggestions():
 
 
 
+
 @app.route('/api/suggestions/post', methods=['POST'])
 def get_suggestions_via_post():
-
     headers = request.headers
+    query = request.get_json() or {}
 
-    query = request.get_json()
+    # token = headers.get("Authorization", "")
+    # if not verifyABHAToken(token):
+    #     return jsonify({"error": "Invalid ABHA token"}), 401
 
-    # header = query.get("headers", {})
-    token = headers.get("Authorization", "")
-    
+    if "code" not in query or "coding" not in query["code"]:
+        return jsonify({"error": "Missing code.coding in body"}), 400
 
-    verifyABHAToken(token)
+    namc_code = query["code"]["coding"][0].get("code", "").lower()
 
     with open("Data/SiddhaJson.json") as file:
         data = json.load(file)
 
-        namc_code = query.get("code").get("coding")[0].get("code")
-        print(namc_code)
-
-
-        # Filter suggestions that start with the query (case-insensitive)
-        suggestions = [[item.get("code"), item.get("display"), item.get("designation")[0].get(
-            "value")] for item in data.get("concept") if item.get("code").lower().startswith(namc_code)]
-
-        # Limit to 5 suggestions for performance
-        suggestions = suggestions[:20]
+        suggestions = [
+            {
+                "code": item.get("code"),
+                "display": item.get("display"),
+                "designation": item.get("designation")[0].get("value")
+            }
+            for item in data.get("concept", [])
+            if item.get("code", "").lower().startswith(namc_code)
+        ][:20]
 
     return jsonify(suggestions)
 
@@ -97,6 +99,33 @@ def submit_term():
 
     return jsonify(data)
 
+
+
+@app.route('/api/convert/post', methods=['POST'])
+def convert():
+    headers = request.headers
+    query = request.get_json() or {}
+
+    # token = headers.get("Authorization", "")
+    # if not verifyABHAToken(token):
+    #     return jsonify({"error": "Invalid ABHA token"}), 401
+
+    if "code" not in query or "coding" not in query["code"]:
+        return jsonify({"error": "Missing code.coding in body"}), 400
+
+    namc_code = query["code"]["coding"][0].get("code", "").lower()
+
+    with open("Data/SiddhaJson.json") as file:
+        data = json.load(file)
+
+        definition = ""
+        for item in data.get("concept", []):
+            if item.get("code", "").lower() == namc_code.lower():
+                definition = item.get("display", "")
+
+    data = getICDDetailsFromEnglishDefinition(definition)
+
+    return jsonify(data)
 
 if __name__ == "__main__":
 
