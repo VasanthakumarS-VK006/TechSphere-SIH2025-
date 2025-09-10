@@ -1,0 +1,155 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "sean",
+    "version": "1.0.0",
+    "title": "Seans-Python3-Flask-Rest-Boilerplate",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "/api"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Book Request",
+      "description": "Example API for requesting and return book requests"
+    }
+  ],
+  "paths": {
+    "/suggestions/post": {
+      "get": {
+        "tags": [
+          "Book Request"
+        ],
+        "summary": "Returns bookRequests",
+		"parameters": [
+				  {
+					"name": "limit",
+					"in": "query",
+					"schema": { "type": "integer", "default": 10 }
+				  },
+				  {
+					"name": "sort",
+					"in": "query",
+					"schema": { "type": "string", "enum": ["asc", "desc"] }
+				  },
+				  {
+					"name": "search",
+					"in": "query",
+					"schema": { "type": "string" }
+				  }
+				],
+
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/components/schemas/bookRequests"
+            }
+          }
+        }
+      },
+
+      "post": {
+        "tags": [
+          "Book Request"
+        ],
+        "summary": "Create a new book request system",
+
+		"parameters": [
+				  {
+					"name": "token",
+					"in": "header",
+					"schema": { "type": "string", "default": "abha-1294875" }
+				  },
+				  {
+					"name": "search",
+					"in": "header",
+					"schema": { "type": "string" }
+				  }
+				],
+
+        "requestBody": {
+          "description": "Book Request Post Object",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/bookRequestPostBody"
+              }
+            }
+          }
+        },
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "201": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/components/schemas/id"
+            }
+          },
+          "400": {
+            "description": "Failed. Bad post data."
+          }
+        }
+      }
+    },
+    "/request/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "ID of the cat that we want to match",
+          "type": "string"
+        }
+      ],
+    }
+  },
+  "components": {
+    "schemas": {
+      "id": {
+        "properties": {
+          "uuid": {
+            "type": "string"
+          }
+        }
+      },
+      "bookRequestPostBody": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "format": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "id": {
+            "type": "string",
+            "format": "id"
+          },
+        }
+      },
+      "bookRequests": {
+        "type": "object",
+        "properties": {
+          "bookRequest": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/bookRequest"
+            }
+          }
+        }
+      }
+    }
+  }
+}

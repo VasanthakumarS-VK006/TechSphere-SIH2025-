@@ -33,7 +33,7 @@ def getICDDetailsFromEnglishDefinition(defintion):
 
     # Parse JSON
     data = response.json()
-
+    print(data)
     res = [[item.get("theCode"), item.get("title")]
            for item in data.get("destinationEntities", None)]
 
@@ -89,7 +89,16 @@ def getICDDetailsFromSiddhaDefinition(defintion):
 
 
     for d in data.get("destinationEntities"):
-        print(d)
+        print(d.get("id"))
+        response = requests.get(d.get("id"), headers=headers)
+        print(response.json())
+        
 
+
+
+def verifyABHAToken(token):
+
+    token_id = token.split(" ")[1]
+    print(token_id)
 
 

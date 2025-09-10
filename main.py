@@ -1,10 +1,29 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 from flask_cors import CORS
-from extraFunctions import getICDDetailsFromEnglishDefinition, getICDDetailsFromSiddhaDefinition
+from extraFunctions import getICDDetailsFromEnglishDefinition, getICDDetailsFromSiddhaDefinition, verifyABHAToken
+from flask_swagger_ui import get_swaggerui_blueprint
 import json
 
 
 app = Flask(__name__)
+
+SWAGGER_URL = '/swagger'
+API_URL = '/static/swagger.json'
+SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={
+        'app_name': "Seans-Python-Flask-REST-Boilerplate"
+    }
+)
+
+
+app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
+
+
+@app.route("/static/<path:path>")
+def send_static(path):
+    return send_from_directory('static', path)
 
 
 @app.route("/")
@@ -31,14 +50,46 @@ def get_suggestions():
     return jsonify(suggestions)
 
 
+
+
+@app.route('/api/suggestions/post', methods=['POST'])
+def get_suggestions_via_post():
+
+    headers = request.headers
+
+    query = request.get_json()
+
+    # header = query.get("headers", {})
+    token = headers.get("Authorization", "")
+    
+
+    verifyABHAToken(token)
+
+    with open("Data/SiddhaJson.json") as file:
+        data = json.load(file)
+
+        namc_code = query.get("code").get("coding")[0].get("code")
+        print(namc_code)
+
+
+        # Filter suggestions that start with the query (case-insensitive)
+        suggestions = [[item.get("code"), item.get("display"), item.get("designation")[0].get(
+            "value")] for item in data.get("concept") if item.get("code").lower().startswith(namc_code)]
+
+        # Limit to 5 suggestions for performance
+        suggestions = suggestions[:20]
+
+    return jsonify(suggestions)
+
+
 @app.route("/api/submit", methods=["POST"])
 def submit_term():
     request_data = request.get_json()
     items = request_data.get("term", "").split(",")
 
-    print(items[2])
     data = getICDDetailsFromEnglishDefinition(items[1])
-    getICDDetailsFromSiddhaDefinition(items[2])
+
+    # getICDDetailsFromSiddhaDefinition(items[2])
 
     # res = {"code": "AB",
     #        "english_term": "Jaundice",
