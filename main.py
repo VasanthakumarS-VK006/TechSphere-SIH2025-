@@ -89,7 +89,7 @@ def submit_term():
     items = request_data.get("term", "").split(",")
     english_term = items[1].strip()
     
-    data = getICDDetailsFromEnglishDefinition(english_term)
+    data = getICDDetailsFromEnglishDefinition(english_term, items[0])
 
     result_summary = f"Found {len(data)} result(s)"
     if data:
@@ -117,7 +117,7 @@ def convert():
     data = []
     if definition:
         search_term_info = f"{namc_code} -> '{definition}'"
-        data = getICDDetailsFromEnglishDefinition(definition)
+        data = getICDDetailsFromEnglishDefinition(definition, namc_code)
         result_summary = f"Found {len(data)} result(s)"
         if data:
             result_summary += f" (e.g., '{data[0][0]}')"

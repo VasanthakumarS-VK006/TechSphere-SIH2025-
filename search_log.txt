@@ -56,3 +56,27 @@ Timestamp: 2025-09-12 12:01:30 | DoctorID: DR987654 | PatientID: PAT123456 | Sea
 Timestamp: 2025-09-12 12:01:39 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Peripheral Neuritis' | Result: Found 2 result(s) (e.g., '8C0Z')
 Timestamp: 2025-09-12 12:01:43 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice' | Result: Found 14 result(s) (e.g., 'ME10.1')
 Timestamp: 2025-09-12 12:01:51 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice classified under vali humour' | Result: Found 0 result(s)
+Timestamp: 2025-09-12 17:16:43 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice classified under vali humour' | Result: Found 14 result(s) (e.g., 'ME10.1')
+Timestamp: 2025-09-12 17:17:46 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice' | Result: Found 14 result(s) (e.g., 'ME10.1')
+Timestamp: 2025-09-12 17:18:09 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: FHIR Resource Generated (NAMC: AB, ICD: KA87.Y) | Result: 
+{
+      "resourceType": "Condition",
+      "id": "cond-123",
+      "meta": { ... },
+      "code": {
+        "coding": [
+          {
+            "system": "https://ndhm.gov.in/fhir/CodeSystem/namc",
+            "code": "AB",
+            "display": "Jaundice"
+          },
+          {
+            "system": "http://id.who.int/icd11/mms",
+            "code": "KA87.Y",
+            "display": "Other specified neonatal hyperbilirubinaemia"
+          }
+        ]
+      },
+      "subject": { ... }
+    }
+Timestamp: 2025-09-12 17:19:50 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Measles' | Result: Found 18 result(s) (e.g., '1F03.0')
