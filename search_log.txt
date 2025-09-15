@@ -80,3 +80,9 @@ Timestamp: 2025-09-12 17:18:09 | DoctorID: DR987654 | PatientID: PAT123456 | Sea
       "subject": { ... }
     }
 Timestamp: 2025-09-12 17:19:50 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Measles' | Result: Found 18 result(s) (e.g., '1F03.0')
+Timestamp: 2025-09-13 19:47:59 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice' | Result: Found 14 result(s) (e.g., 'ME10.1')
+Timestamp: 2025-09-13 19:48:13 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice classified under vali humour' | Result: Found 14 result(s) (e.g., 'ME10.1')
+Timestamp: 2025-09-14 12:14:29 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice' | Result: Found 14 result(s) (e.g., 'ME10.1')
+Timestamp: 2025-09-14 14:23:13 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice' | Result: Found 14 result(s) (e.g., 'ME10.1')
+Timestamp: 2025-09-14 18:56:02 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice' | Result: Found 14 result(s) (e.g., 'ME10.1')
+Timestamp: 2025-09-14 19:16:32 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice' | Result: Found 14 result(s) (e.g., 'ME10.1')
