@@ -4,6 +4,7 @@ from extraFunctions import getICDDetailsFromEnglishDefinition, getICDDetailsFrom
 from flask_swagger_ui import get_swaggerui_blueprint
 import json
 from datetime import datetime
+import requests
 
 app = Flask(__name__)
 CORS(app)
@@ -15,6 +16,7 @@ DEFAULT_PATIENT_CODE = "PAT123456"
 
 # --- Custom Log File for Search Activity ---
 LOG_FILE_NAME = "search_log.txt"
+
 
 def log_search_activity(search_term, result_summary):
     """Logs doctor/patient IDs and search activity to a simple text file."""
@@ -33,6 +35,7 @@ def log_search_activity(search_term, result_summary):
         print(f"Error writing to log file: {e}")
 # ---------------------------------------------
 
+
 SWAGGER_URL = '/swagger'
 API_URL = '/static/swagger.json'
 SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
@@ -43,6 +46,7 @@ SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
 app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
 
 
+# For Swagger
 @app.route("/static/<path:path>")
 def send_static(path):
     return send_from_directory('static', path)
@@ -52,7 +56,7 @@ def send_static(path):
 def home():
     return render_template("index.html")
 
-
+# For Displaying NAMASTE suggestions in the index page
 @app.route('/api/suggestions', methods=['GET'])
 def get_suggestions():
     query = request.args.get('q', '').lower()
@@ -66,6 +70,8 @@ def get_suggestions():
     return jsonify(suggestions)
 
 
+
+# For Displaying NAMASTE suggestions in the Swagger ui page
 @app.route('/api/suggestions/post', methods=['POST'])
 def get_suggestions_via_post():
     query = request.get_json() or {}
@@ -83,29 +89,32 @@ def get_suggestions_via_post():
     return jsonify(suggestions)
 
 
+# For converting the given NAMC Code into the ICD-11 Codes in index page
 @app.route("/api/submit", methods=["POST"])
 def submit_term():
     request_data = request.get_json()
     items = request_data.get("term", "").split(",")
     english_term = items[1].strip()
-    
+
     data = getICDDetailsFromEnglishDefinition(english_term, items[0])
 
     result_summary = f"Found {len(data)} result(s)"
     if data:
         result_summary += f" (e.g., '{data[0][0]}')"
     log_search_activity(f"'{english_term}'", result_summary)
-    
+
     return jsonify(data)
 
 
+
+# For converting the given NAMC Code into the ICD-11 Codes in SwaggerUI page
 @app.route('/api/convert/post', methods=['POST'])
 def convert():
     query = request.get_json() or {}
     if "code" not in query or "coding" not in query["code"]:
         return jsonify({"error": "Missing code.coding in body"}), 400
     namc_code = query["code"]["coding"][0].get("code", "").lower()
-    
+
     definition = ""
     with open("Data/SiddhaJson.json") as file:
         siddha_data = json.load(file)
@@ -113,7 +122,7 @@ def convert():
             if item.get("code", "").lower() == namc_code:
                 definition = item.get("display", "")
                 break
-    
+
     data = []
     if definition:
         search_term_info = f"{namc_code} -> '{definition}'"
@@ -128,6 +137,8 @@ def convert():
     return jsonify(data)
 
 
+
+# This is for returning the json from the index page and storing it in the database. This is called from the return button in the index page.
 @app.route("/api/returnJson", methods=["POST"])
 def returnJson():
     data = request.get_json()
@@ -155,13 +166,36 @@ def returnJson():
         ]
       }},
       "subject": {{ ... }}
-    }}''' # Truncated for brevity
+    }}'''  # Truncated for brevity
 
-    activity_description = f"FHIR Resource Generated (NAMC: {namc_code}, ICD: {icd_code})"
+    activity_description = f"FHIR Resource Generated (NAMC: {namc_code}, ICD: {
+        icd_code})"
     log_search_activity(activity_description, f"\n{json_str}")
-    
+
     return jsonify({"message": "Success, JSON logged."})
 
+
+# This is used when calling who icd ECT tool. It requires tokens so it is used to provide it.
+@app.route("/api/newToken")
+def newToken():
+
+    token_endpoint = 'https://icdaccessmanagement.who.int/connect/token'
+    client_id = '42000a86-ed11-4082-8408-31fe933baa5a_a498c5fb-3ea8-4b0f-b221-05aaacb39be6'
+    client_secret = 'aeRcA/gMcEaKLkjxFhLBpbC9UmJmHyuYlK7YWhIPIxw='
+    scope = 'icdapi_access'
+    grant_type = 'client_credentials'
+
+    payload = {'client_id': client_id,
+               'client_secret': client_secret,
+               'scope': scope,
+               'grant_type': grant_type}
+
+
+    r = requests.post(token_endpoint, data=payload).json()
+    token = r['access_token']
+    print("hello")
+    print(token)
+    return jsonify({"token" : token})
 
 if __name__ == "__main__":
     app.run(debug=True)
