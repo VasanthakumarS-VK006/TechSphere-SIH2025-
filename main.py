@@ -175,7 +175,7 @@ def returnJson():
     return jsonify({"message": "Success, JSON logged."})
 
 
-# This is used when calling who icd ECT tool. It requires tokens so it is used to provide it.
+#NOTE: This is used when calling who icd ECT tool. It requires tokens so it is used to provide it.
 @app.route("/api/newToken")
 def newToken():
 
@@ -196,6 +196,23 @@ def newToken():
     print("hello")
     print(token)
     return jsonify({"token" : token})
+
+
+
+#NOTE: This is called for converting ICD to NAMC. The english term from the ECT tool is passed here
+
+@app.route("/api/ICDtoNAMC")
+def ICDtoNAMC():
+    term = request.args.get("q")
+
+
+
+
+    print(term)
+    return jsonify({"code" : "ME10.1", "term" : "Jaundice"})
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

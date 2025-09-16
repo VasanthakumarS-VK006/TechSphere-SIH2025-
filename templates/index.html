@@ -135,7 +135,7 @@
 					<label for="result-input">
 						<h3>ICD Code: </h3>
 					</label>
-					<input type="text" id="icdCode1" class="ctw-input" autocomplete="off" data-ctw-ino="1">
+					<input type="text" id="icdCode" class="ctw-input" autocomplete="off" data-ctw-ino="1">
 				</div>
 			</div>
 
@@ -165,7 +165,7 @@
 			</div>
 
 			<div class="col-2 mt-5 pt-3">
-				<button id="submit-button" disabled style="max-width: 100px; max-height: 50px;">Convert</button>
+				<button id="submit-button2" disabled style="max-width: 100px; max-height: 50px;">Convert</button>
 			</div>
 
 
@@ -174,19 +174,18 @@
 					<label for="search-input">
 						<h3>NAMC Code: </h3>
 					</label>
-					<input type="text" id="search-input" placeholder="Search..." style="min-width: 350px;">
-					<div id="suggestions" class="suggestions"></div>
+					<input type="text" id="search-input2" placeholder="Search..." style="min-width: 350px;">
+					<div id="suggestions2" class="suggestions"></div>
 				</div>
-
 			</div>
 
 			<div class="col-2 mt-5 pt-3">
-				<button id="return-button" style="max-width: 100px; max-height: 50px;"
+				<button id="return-button2" style="max-width: 100px; max-height: 50px;"
 					onclick="returnJson()">Return</button>
 			</div>
 		</div>
 
-		<div class="row" style="left: 50%;" id="icdResults">
+		<div class="row" style="left: 50%;" id="icdResults2">
 			<div class="ctw-window" data-ctw-ino="2"></div>
 		</div>
 	</div>
