@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory
 from flask_cors import CORS
-from extraFunctions import getICDDetailsFromEnglishDefinition, getICDDetailsFromSiddhaDefinition, verifyABHAToken
+from extraFunctions import getICDDetailsFromEnglishDefinition, getICDDetailsFromSiddhaDefinition, verifyABHAToken, findNAMCTerm
 from flask_swagger_ui import get_swaggerui_blueprint
 import json
 from datetime import datetime
@@ -78,7 +78,7 @@ def get_suggestions_via_post():
     if "code" not in query or "coding" not in query["code"]:
         return jsonify({"error": "Missing code.coding in body"}), 400
     namc_code = query["code"]["coding"][0].get("code", "").lower()
-    with open("Data/SiddhaJson.json") as file:
+    with open("Data/SiddhaJson.json", encoding="utf-8") as file:
         data = json.load(file)
         suggestions = [
             {"code": item.get("code"), "display": item.get("display"),
@@ -116,7 +116,7 @@ def convert():
     namc_code = query["code"]["coding"][0].get("code", "").lower()
 
     definition = ""
-    with open("Data/SiddhaJson.json") as file:
+    with open("Data/SiddhaJson.json", encoding="utf-8") as file:
         siddha_data = json.load(file)
         for item in siddha_data.get("concept", []):
             if item.get("code", "").lower() == namc_code:
@@ -150,26 +150,25 @@ def returnJson():
     json_str = f'''{{
       "resourceType": "Condition",
       "id": "cond-123",
-      "meta": {{ ... }},
+      "meta": {{ "...": "..." }},
       "code": {{
         "coding": [
           {{
             "system": "https://ndhm.gov.in/fhir/CodeSystem/namc",
             "code": "{namc_code}",
-            "display": "{namc.split(',')[1]}"
+            "display": "{namc.split(',')[1].strip()}"
           }},
           {{
             "system": "http://id.who.int/icd11/mms",
             "code": "{icd_code}",
-            "display": "{icd.split(',')[1]}"
+            "display": "{icd.split(',')[1].strip()}"
           }}
         ]
       }},
-      "subject": {{ ... }}
-    }}'''  # Truncated for brevity
+      "subject": {{ "...": "..." }}
+    }}'''
 
-    activity_description = f"FHIR Resource Generated (NAMC: {namc_code}, ICD: {
-        icd_code})"
+    activity_description = f"FHIR Resource Generated (NAMC: {namc_code}, ICD: {icd_code})"
     log_search_activity(activity_description, f"\n{json_str}")
 
     return jsonify({"message": "Success, JSON logged."})
@@ -193,24 +192,29 @@ def newToken():
 
     r = requests.post(token_endpoint, data=payload).json()
     token = r['access_token']
-    print("hello")
-    print(token)
     return jsonify({"token" : token})
 
 
 
 #NOTE: This is called for converting ICD to NAMC. The english term from the ECT tool is passed here
-
 @app.route("/api/ICDtoNAMC")
 def ICDtoNAMC():
-    term = request.args.get("q")
+    query = request.args.get("q")
+    if not query:
+        return jsonify({"error": "Query parameter 'q' is missing."}), 400
 
+    # Split and strip whitespace to get a clean search term
+    try:
+        term = query.split(",")[1].strip()
+    except IndexError:
+        # Handle cases where the input doesn't contain a comma
+        term = query.strip()
 
+    # The 'findNAMCTerm' function now returns a list of dicts with code and term
+    matches = findNAMCTerm(term)
 
-
-    print(term)
-    return jsonify({"code" : "ME10.1", "term" : "Jaundice"})
-
+    # The matches are already in the correct format, so just return them
+    return jsonify(matches)
 
 
 

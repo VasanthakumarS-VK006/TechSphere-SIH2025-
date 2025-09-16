@@ -195,37 +195,6 @@ searchInput2.addEventListener('input', async () => {
 		suggestionsContainer2.style.display = 'none';
 		return;
 	}
-
-	try {
-		const response = await fetch(`http://127.0.0.1:5000/api/suggestions?q=${encodeURIComponent(query2)}`);
-		if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
-
-		console.log("Inside the try blocl");
-		const suggestions = await response.json();
-		console.log('Suggestions:', suggestions); // Debug
-
-		suggestionsContainer2.innerHTML = '';
-
-		if (suggestions.length > 0) {
-			suggestions.forEach(item => {
-				const div2 = document.createElement('div');
-				div2.className = 'suggestion-item';
-				div2.textContent = item; // English term
-				div2.addEventListener('click', () => {
-					searchInput2.value = item; // Set input value
-					suggestionsContainer2.style.display = 'none';
-					isSuggestionSelected2 = true; // Mark suggestion as selected
-				});
-				suggestionsContainer2.appendChild(div);
-			});
-			suggestionsContainer2.style.display = 'block';
-		} else {
-			suggestionsContainer2.style.display = 'none';
-		}
-	} catch (error) {
-		console.error('Error fetching suggestions:', error);
-		suggestionsContainer2.style.display = 'none';
-	}
 });
 
 
@@ -249,10 +218,23 @@ submitButton2.addEventListener('click', async () => {
 		if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
 
 		const suggestions = await response.json();
+		console.log(suggestions)
 
-		resultInput2.value = `${suggestions.code}, ${suggestions.term}`;
-
-
+		if (suggestions.length > 0) {
+			suggestions.forEach(item => {
+				const div2 = document.createElement('div');
+				div2.className = 'suggestion-item';
+				div2.textContent = `${item.code}, ${item.term}`; // English term
+				div2.addEventListener('click', () => {
+					resultInput2.value = `${item.code}, ${item.term}`;
+					suggestionsContainer2.style.display = 'none';
+				});
+				suggestionsContainer2.appendChild(div2);
+			});
+			suggestionsContainer2.style.display = 'block';
+		} else {
+			suggestionsContainer2.style.display = 'none';
+		}
 
 
 	} catch (error) {

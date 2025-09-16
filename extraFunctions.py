@@ -1,7 +1,9 @@
+from numpy import ma
 import urllib3
 import json
 import requests
 import  re
+from thefuzz import process
 
 
 def getICDDetailsFromEnglishDefinition(definition, namc_code):
@@ -42,7 +44,7 @@ def getICDDetailsFromEnglishDefinition(definition, namc_code):
     # Parse JSON
     data = response.json()
     res = [[item.get("theCode"), re.sub(r'<.*?>', '',item.get("title"))]
-           for item in data.get("destinationEntities", None)]
+           for item in data.get("destinationEntities", [])] # Use empty list as default
 
     
 
@@ -77,7 +79,7 @@ def getICDDetailsFromEnglishDefinition(definition, namc_code):
             # Parse JSON
             data = response.json()
             res = [[item.get("theCode"), re.sub(r'<.*?>', '',item.get("title"))]
-                   for item in data.get("destinationEntities", None)]
+                   for item in data.get("destinationEntities", [])] # Use empty list as default
 
     return res
 
@@ -115,13 +117,9 @@ def getICDDetailsFromSiddhaDefinition(definition):
     # Parse JSON
     data = response.json()
 
-    # res = [[item.get("theCode"), item.get("title")]
-    #        for item in data.get("destinationEntities", None)]
-
     print(data)
 
-
-    for d in data.get("destinationEntities"):
+    for d in data.get("destinationEntities", []): # Use empty list as default
         print(d.get("id"))
         response = requests.get(d.get("id"), headers=headers)
         print(response.json())
@@ -130,8 +128,34 @@ def getICDDetailsFromSiddhaDefinition(definition):
 
 
 def verifyABHAToken(token):
-
     # token_id = token.split(" ")[1]
     print(token)
 
+
+
+def findNAMCTerm(term):
+    """
+    Finds the best matching NAMC terms and their codes from SiddhaJson.json using thefuzz.
+    """
+    with open("./Data/SiddhaJson.json", encoding="utf-8") as file:
+        data = json.load(file)
+
+    concepts = data.get("concept", [])
+    
+    # Create a list of all display names to search against
+    choices = [item.get("display") for item in concepts if item.get("display")]
+    
+    # Create a dictionary for quick lookup of code by display name
+    display_to_code_map = {item.get("display"): item.get("code") for item in concepts}
+
+    # Perform the fuzzy search using thefuzz
+    matches = process.extract(term, choices, limit=20)
+
+    # Prepare the results with code, term, and score
+    results = []
+    for match_term, score in matches:
+        code = display_to_code_map.get(match_term)
+        if code:
+            results.append({"code": code, "term": match_term, "score": score})
+    return results
 

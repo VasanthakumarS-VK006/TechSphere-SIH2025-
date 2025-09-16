@@ -1,88 +1,21 @@
-Timestamp: 2025-09-11 15:39:04 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice' | Result: Found 14 result(s) (e.g., 'ME10.1')
-Timestamp: 2025-09-11 15:42:29 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: FHIR Resource Generated (NAMC: AB, ICD: KA87.Z) | Result: 
+Timestamp: 2025-09-16 12:01:26 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: FHIR Resource Generated (NAMC: TCC, ICD: ME10.1 ) | Result: 
 {
       "resourceType": "Condition",
       "id": "cond-123",
-      "meta": { ... },
+      "meta": { "...": "..." },
       "code": {
         "coding": [
           {
             "system": "https://ndhm.gov.in/fhir/CodeSystem/namc",
-            "code": "AB",
-            "display": "Jaundice"
+            "code": "TCC",
+            "display": "Jaundice of children classfied under aiyam"
           },
           {
             "system": "http://id.who.int/icd11/mms",
-            "code": "KA87.Z",
-            "display": "Neonatal hyperbilirubinaemia"
-          }
-        ]
-      },
-      "subject": { ... }
-    }
-Timestamp: 2025-09-12 11:40:15 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice' | Result: Found 14 result(s) (e.g., 'ME10.1')
-Timestamp: 2025-09-12 11:40:24 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: FHIR Resource Generated (NAMC: AB, ICD: ME10.1) | Result: 
-{
-      "resourceType": "Condition",
-      "id": "cond-123",
-      "meta": { ... },
-      "code": {
-        "coding": [
-          {
-            "system": "https://ndhm.gov.in/fhir/CodeSystem/namc",
-            "code": "AB",
-            "display": "Jaundice"
-          },
-          {
-            "system": "http://id.who.int/icd11/mms",
-            "code": "ME10.1",
+            "code": "ME10.1 ",
             "display": "Unspecified jaundice"
           }
         ]
       },
-      "subject": { ... }
+      "subject": { "...": "..." }
     }
-Timestamp: 2025-09-12 12:00:15 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice' | Result: Found 14 result(s) (e.g., 'ME10.1')
-Timestamp: 2025-09-12 12:00:35 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Peripheral Neuritis' | Result: Found 2 result(s) (e.g., '8C0Z')
-Timestamp: 2025-09-12 12:00:48 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Peripheral Neuritis' | Result: Found 2 result(s) (e.g., '8C0Z')
-Timestamp: 2025-09-12 12:00:58 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Peripheral Neuritis' | Result: Found 2 result(s) (e.g., '8C0Z')
-Timestamp: 2025-09-12 12:00:59 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Peripheral Neuritis' | Result: Found 2 result(s) (e.g., '8C0Z')
-Timestamp: 2025-09-12 12:00:59 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Peripheral Neuritis' | Result: Found 2 result(s) (e.g., '8C0Z')
-Timestamp: 2025-09-12 12:00:59 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Peripheral Neuritis' | Result: Found 2 result(s) (e.g., '8C0Z')
-Timestamp: 2025-09-12 12:00:59 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Peripheral Neuritis' | Result: Found 2 result(s) (e.g., '8C0Z')
-Timestamp: 2025-09-12 12:00:59 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Peripheral Neuritis' | Result: Found 2 result(s) (e.g., '8C0Z')
-Timestamp: 2025-09-12 12:01:01 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Peripheral Neuritis' | Result: Found 2 result(s) (e.g., '8C0Z')
-Timestamp: 2025-09-12 12:01:30 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Lumbosacroiliac syndrome' | Result: Found 0 result(s)
-Timestamp: 2025-09-12 12:01:39 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Peripheral Neuritis' | Result: Found 2 result(s) (e.g., '8C0Z')
-Timestamp: 2025-09-12 12:01:43 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice' | Result: Found 14 result(s) (e.g., 'ME10.1')
-Timestamp: 2025-09-12 12:01:51 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice classified under vali humour' | Result: Found 0 result(s)
-Timestamp: 2025-09-12 17:16:43 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice classified under vali humour' | Result: Found 14 result(s) (e.g., 'ME10.1')
-Timestamp: 2025-09-12 17:17:46 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice' | Result: Found 14 result(s) (e.g., 'ME10.1')
-Timestamp: 2025-09-12 17:18:09 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: FHIR Resource Generated (NAMC: AB, ICD: KA87.Y) | Result: 
-{
-      "resourceType": "Condition",
-      "id": "cond-123",
-      "meta": { ... },
-      "code": {
-        "coding": [
-          {
-            "system": "https://ndhm.gov.in/fhir/CodeSystem/namc",
-            "code": "AB",
-            "display": "Jaundice"
-          },
-          {
-            "system": "http://id.who.int/icd11/mms",
-            "code": "KA87.Y",
-            "display": "Other specified neonatal hyperbilirubinaemia"
-          }
-        ]
-      },
-      "subject": { ... }
-    }
-Timestamp: 2025-09-12 17:19:50 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Measles' | Result: Found 18 result(s) (e.g., '1F03.0')
-Timestamp: 2025-09-13 19:47:59 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice' | Result: Found 14 result(s) (e.g., 'ME10.1')
-Timestamp: 2025-09-13 19:48:13 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice classified under vali humour' | Result: Found 14 result(s) (e.g., 'ME10.1')
-Timestamp: 2025-09-14 12:14:29 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice' | Result: Found 14 result(s) (e.g., 'ME10.1')
-Timestamp: 2025-09-14 14:23:13 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice' | Result: Found 14 result(s) (e.g., 'ME10.1')
-Timestamp: 2025-09-14 18:56:02 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice' | Result: Found 14 result(s) (e.g., 'ME10.1')
-Timestamp: 2025-09-14 19:16:32 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: 'Jaundice' | Result: Found 14 result(s) (e.g., 'ME10.1')
