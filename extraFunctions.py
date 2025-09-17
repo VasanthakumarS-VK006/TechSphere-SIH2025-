@@ -139,6 +139,7 @@ def findNAMCTerm(term):
     Finds the best matching NAMC terms and their codes from both 
     SiddhaJson.json and AyurvedaJson.json using thefuzz.
     """
+
     # Define the paths to the JSON files
     json_files = ["./Data/SiddhaJson.json", "./Data/AyurvedaJson.json"]
     all_concepts = []
