@@ -20,3 +20,24 @@ Timestamp: 2025-09-16 12:01:26 | DoctorID: DR987654 | PatientID: PAT123456 | Sea
       "subject": { "...": "..." }
     }
 Timestamp: 2025-09-17 14:57:05 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: z2 -> 'Peripheral Neuritis' | Result: Found 2 result(s) (e.g., '8C0Z')
+Timestamp: 2025-09-17 15:41:38 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: FHIR Resource Generated (NAMC: AB, ICD: ME10.1 ) | Result: 
+{
+      "resourceType": "Condition",
+      "id": "cond-123",
+      "meta": { "...": "..." },
+      "code": {
+        "coding": [
+          {
+            "system": "https://ndhm.gov.in/fhir/CodeSystem/namc",
+            "code": "AB",
+            "display": "Jaundice"
+          },
+          {
+            "system": "http://id.who.int/icd11/mms",
+            "code": "ME10.1 ",
+            "display": "Unspecified jaundice"
+          }
+        ]
+      },
+      "subject": { "...": "..." }
+    }

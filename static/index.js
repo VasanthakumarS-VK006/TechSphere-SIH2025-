@@ -6,7 +6,7 @@ function returnJson() {
 
 	const payload = { icd: icdValue, namc: namcValue };
 
-	fetch("{{url_for('returnJson')}", {
+	fetch("/api/returnJson", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify(payload)
@@ -36,7 +36,8 @@ searchInput.addEventListener('input', async () => {
 	}
 
 	try {
-		const response = await fetch("{{url_for('get_suggestions', q = query )}}");
+		url = "/api/suggestions?q=" + encodeURI(query);
+		const response = await fetch(url);
 		if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
 
 		const suggestions = await response.json();
@@ -112,7 +113,7 @@ const mySettings = {
 const myCallbacks = {
 
 	getNewTokenFunction: async () => {
-		const url = "{{url_for('newToken')}}";
+		const url = "/api/newToken";
 		try {
 			const response = await fetch(url);
 			const result = await response.json();
@@ -153,7 +154,7 @@ function returnJson() {
 
 	const payload2 = { icd: icdValue2, namc: namcValue2 };
 
-	fetch("{{url_for('returnJson')}", {
+	fetch("/api/returnJson", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify(payload2)
@@ -199,7 +200,8 @@ submitButton2.addEventListener('click', async () => {
 	try {
 
 		console.log("Inside the submit's event listener")
-		const response = await fetch("{{url_for('ICDtoNAMC', q = selectedTerm)}}");
+		url = "/api/ICDtoNAMC?q=" + encodeURI(query)
+		const response = await fetch(url);
 		if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
 
 		const suggestions = await response.json();
