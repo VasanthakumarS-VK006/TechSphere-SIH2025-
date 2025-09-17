@@ -24,6 +24,7 @@ const resultDiv = document.getElementById('result');
 let isSuggestionSelected = false; // Track if a suggestion was selected
 let isResultSelected = false; // Track if a suggestion was selected
 
+let debounceTimeout;
 
 //NOTE: Checks if any change is made to the NAMC Code search box
 searchInput.addEventListener('input', async () => {
@@ -36,38 +37,42 @@ searchInput.addEventListener('input', async () => {
 		return;
 	}
 
-	try {
-		url = "/api/suggestions?q=" + encodeURI(query);
-		const response = await fetch(url);
-		if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
+	clearTimeout(debounceTimeout);
 
-		const suggestions = await response.json();
-		console.log('Suggestions:', suggestions); // Debug
+	// Set new debounce
+	debounceTimeout = setTimeout(async () => {
+		try {
+			const url = "/api/suggestions?q=" + encodeURIComponent(query);
+			const response = await fetch(url);
+			if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
 
+			const suggestions = await response.json();
+			console.log('Suggestions:', suggestions); // Debug
 
-		suggestionsContainer.innerHTML = '';
+			suggestionsContainer.innerHTML = '';
 
-		if (suggestions.length > 0) {
-			suggestions.forEach(item => {
-				const div = document.createElement('div');
-				div.className = 'suggestion-item';
-				div.textContent = item; // English term
-				div.addEventListener('click', () => {
-					searchInput.value = item; // Set input value
-					suggestionsContainer.style.display = 'none';
-					isSuggestionSelected = true; // Mark suggestion as selected
-					submitButton.disabled = false; // Enable submit button
+			if (suggestions.length > 0) {
+				suggestions.forEach(item => {
+					const div = document.createElement('div');
+					div.className = 'suggestion-item';
+					div.textContent = item;
+					div.addEventListener('click', () => {
+						searchInput.value = item;
+						suggestionsContainer.style.display = 'none';
+						isSuggestionSelected = true;
+						submitButton.disabled = false;
+					});
+					suggestionsContainer.appendChild(div);
 				});
-				suggestionsContainer.appendChild(div);
-			});
-			suggestionsContainer.style.display = 'block';
-		} else {
+				suggestionsContainer.style.display = 'block';
+			} else {
+				suggestionsContainer.style.display = 'none';
+			}
+		} catch (error) {
+			console.error('Error fetching suggestions:', error);
 			suggestionsContainer.style.display = 'none';
 		}
-	} catch (error) {
-		console.error('Error fetching suggestions:', error);
-		suggestionsContainer.style.display = 'none';
-	}
+	}, 800);
 });
 
 
