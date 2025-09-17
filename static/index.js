@@ -200,7 +200,7 @@ submitButton2.addEventListener('click', async () => {
 	try {
 
 		console.log("Inside the submit's event listener")
-		url = "/api/ICDtoNAMC?q=" + encodeURIComponent(query)
+		url = "/api/ICDtoNAMC?q=" + encodeURIComponent(selectedTerm)
 		const response = await fetch(url);
 		if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
 
