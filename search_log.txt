@@ -50,3 +50,13 @@ Timestamp: 2025-09-18 00:18:18 | DoctorID: DR987654 | PatientID: PAT123456 | Sea
 Timestamp: 2025-09-18 00:18:52 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: NAMC->ICD: 'Metabolic disorders' | Result: Found 50 result(s) (e.g., '5D2Z')
 Timestamp: 2025-09-18 00:35:11 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: ICD->NAMC: 'Unspecified jaundice' | Result: Found 10 fuzzy matches.
 Timestamp: 2025-09-18 00:35:28 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: NLP Search: 'pain in brain' | Result: Found 5 results.
+Timestamp: 2025-09-18 01:01:45 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: NLP Search: 'vomit' | Result: Found 5 results.
+Timestamp: 2025-09-18 01:11:17 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: NLP Search: 'ab' | Result: Found 5 results.
+Timestamp: 2025-09-18 01:11:48 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: NLP Search: 'ab' | Result: Found 5 results.
+Timestamp: 2025-09-18 01:11:49 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: NLP Search: 'ab' | Result: Found 5 results.
+Timestamp: 2025-09-18 01:14:07 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: NLP Search: 'itching in hands' | Result: Found 5 results.
+Timestamp: 2025-09-18 01:16:33 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: NLP Search: 'hi' | Result: Found 5 results.
+Timestamp: 2025-09-18 01:40:29 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: NLP Search: 'fever' | Result: Found 5 results.
+Timestamp: 2025-09-18 01:41:26 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: NLP Search: 'fever' | Result: Found 5 results.
+Timestamp: 2025-09-18 01:43:47 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: NLP Search: 'pain' | Result: Found 5 results.
+Timestamp: 2025-09-18 01:45:40 | DoctorID: DR987654 | PatientID: PAT123456 | SearchTerm: NLP Search: 'pain' | Result: Found 5 results.

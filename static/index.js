@@ -95,7 +95,6 @@ submitButton.addEventListener('click', async () => {
 
 		terms = selectedTerm.split(",")
 		ECT.Handler.search("1", terms[1]);
-		console.log(terms[1])
 
 
 	} catch (error) {
@@ -317,7 +316,7 @@ function displayNLPResults(results) {
 		const cleanDefinition = item.full_definition.replace(item.display + ': ', '');
 
 		return `
-						<div class="card shadow-sm mb-3">
+						<div class="card shadow-sm mb-3" onclick="handleNLPCardClick('${item.code}', '${item.display}', '${item.system}')">
 							<div class="card-body">
 								<div class="d-flex justify-content-between align-items-start">
 									<h5 class="card-title mb-1">${item.display}</h5>
@@ -329,6 +328,11 @@ function displayNLPResults(results) {
 						</div>
 					`;
 	}).join('');
+
+	window.handleNLPCardClick = function(code, display, system) {
+		console.log("Inside handleCardClickFunction");
+		searchInput.value = `${code},${system}: ${display}`;
+	}
 
 	nlpResultsArea.innerHTML = resultsHtml;
 }
