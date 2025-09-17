@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Citizen Login / Signup - CivicConnect</title>
   <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#000000">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -738,6 +739,11 @@
 
    
   <script>
+     if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js")
+        .then(() => console.log("✅ Service Worker registered"))
+        .catch(err => console.log("❌ SW registration failed", err));
+    }
   const toggleBtn = document.getElementById("toggle-btn");
   const formTitle = document.getElementById("form-title");
   const formSubtitle = document.getElementById("form-subtitle");
