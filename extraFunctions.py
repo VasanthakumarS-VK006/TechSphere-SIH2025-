@@ -51,6 +51,7 @@ def getICDDetailsFromEnglishDefinition(definition, namc_code):
     if not res:
         print("entered res")
         
+        # NOTE: This fallback logic only uses SiddhaJson.json
         with open("Data/SiddhaJson.json", encoding="utf-8") as file:
             data = json.load(file)
 
@@ -135,20 +136,36 @@ def verifyABHAToken(token):
 
 def findNAMCTerm(term):
     """
-    Finds the best matching NAMC terms and their codes from SiddhaJson.json using thefuzz.
+    Finds the best matching NAMC terms and their codes from both 
+    SiddhaJson.json and AyurvedaJson.json using thefuzz.
     """
-    with open("./Data/SiddhaJson.json", encoding="utf-8") as file:
-        data = json.load(file)
+    # Define the paths to the JSON files
+    json_files = ["./Data/SiddhaJson.json", "./Data/AyurvedaJson.json"]
+    all_concepts = []
 
-    concepts = data.get("concept", [])
-    
-    # Create a list of all display names to search against
-    choices = [item.get("display") for item in concepts if item.get("display")]
-    
-    # Create a dictionary for quick lookup of code by display name
-    display_to_code_map = {item.get("display"): item.get("code") for item in concepts}
+    # Loop through each file path to read and aggregate the concepts
+    for file_path in json_files:
+        try:
+            with open(file_path, encoding="utf-8") as file:
+                data = json.load(file)
+                # Add the concepts from the current file to the main list
+                all_concepts.extend(data.get("concept", []))
+        except FileNotFoundError:
+            print(f"Warning: File not found at {file_path}. Skipping.")
+        except json.JSONDecodeError:
+            print(f"Warning: Could not decode JSON from {file_path}. Skipping.")
 
-    # Perform the fuzzy search using thefuzz
+    # Proceed only if we have concepts to search
+    if not all_concepts:
+        return []
+    
+    # Create a list of all display names from the aggregated data to search against
+    choices = [item.get("display") for item in all_concepts if item.get("display")]
+    
+    # Create a dictionary for quick lookup of a code by its display name
+    display_to_code_map = {item.get("display"): item.get("code") for item in all_concepts}
+
+    # Perform the fuzzy search using thefuzz on the combined list of choices
     matches = process.extract(term, choices, limit=20)
 
     # Prepare the results with code, term, and score
@@ -157,5 +174,5 @@ def findNAMCTerm(term):
         code = display_to_code_map.get(match_term)
         if code:
             results.append({"code": code, "term": match_term, "score": score})
+            
     return results
-
