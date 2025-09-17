@@ -1,5 +1,6 @@
 // NOTE: For NAMC to ICD
 // when the return button is clicked it returns the current value in the search box to the backend.
+
 function returnJson() {
 	const icdValue = document.getElementById("icdCode").value;
 	const namcValue = document.getElementById("search-input").value;
@@ -25,55 +26,48 @@ let isResultSelected = false; // Track if a suggestion was selected
 
 
 //NOTE: Checks if any change is made to the NAMC Code search box
-let debounceTimeout;
-
-searchInput.addEventListener('input', () => {
+searchInput.addEventListener('input', async () => {
 	const query = searchInput.value.trim();
-	isSuggestionSelected = false;
-	submitButton.disabled = true;
+	isSuggestionSelected = false; // Reset on new input
+	submitButton.disabled = true; // Disable button until suggestion is selected
 
 	if (query.length === 0) {
 		suggestionsContainer.style.display = 'none';
 		return;
 	}
 
-	// Clear previous timeout
-	clearTimeout(debounceTimeout);
+	try {
+		url = "/api/suggestions?q=" + encodeURI(query);
+		const response = await fetch(url);
+		if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
 
-	// Set new debounce
-	debounceTimeout = setTimeout(async () => {
-		try {
-			const url = "/api/suggestions?q=" + encodeURIComponent(query);
-			const response = await fetch(url);
-			if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
+		const suggestions = await response.json();
+		console.log('Suggestions:', suggestions); // Debug
 
-			const suggestions = await response.json();
-			console.log('Suggestions:', suggestions); // Debug
 
-			suggestionsContainer.innerHTML = '';
+		suggestionsContainer.innerHTML = '';
 
-			if (suggestions.length > 0) {
-				suggestions.forEach(item => {
-					const div = document.createElement('div');
-					div.className = 'suggestion-item';
-					div.textContent = item;
-					div.addEventListener('click', () => {
-						searchInput.value = item;
-						suggestionsContainer.style.display = 'none';
-						isSuggestionSelected = true;
-						submitButton.disabled = false;
-					});
-					suggestionsContainer.appendChild(div);
+		if (suggestions.length > 0) {
+			suggestions.forEach(item => {
+				const div = document.createElement('div');
+				div.className = 'suggestion-item';
+				div.textContent = item; // English term
+				div.addEventListener('click', () => {
+					searchInput.value = item; // Set input value
+					suggestionsContainer.style.display = 'none';
+					isSuggestionSelected = true; // Mark suggestion as selected
+					submitButton.disabled = false; // Enable submit button
 				});
-				suggestionsContainer.style.display = 'block';
-			} else {
-				suggestionsContainer.style.display = 'none';
-			}
-		} catch (error) {
-			console.error('Error fetching suggestions:', error);
+				suggestionsContainer.appendChild(div);
+			});
+			suggestionsContainer.style.display = 'block';
+		} else {
 			suggestionsContainer.style.display = 'none';
 		}
-	}, 800);
+	} catch (error) {
+		console.error('Error fetching suggestions:', error);
+		suggestionsContainer.style.display = 'none';
+	}
 });
 
 
@@ -94,11 +88,8 @@ submitButton.addEventListener('click', async () => {
 
 	try {
 
-		terms = selectedTerm.split(",");
-		term = terms[1];
-		term = term.split(":")[1].trim();
-
-		ECT.Handler.search("1", term);
+		terms = selectedTerm.split(",")
+		ECT.Handler.search("1", terms[1]);
 		console.log(terms[1])
 
 
@@ -241,5 +232,103 @@ submitButton2.addEventListener('click', async () => {
 		console.error('Error submitting term:', error);
 	}
 });
+
+
+// ====================================================================
+// START: NLP CLINICAL NOTES SEARCH LOGIC (Works with the new main.py)
+// ====================================================================
+const nlpSearchButton = document.getElementById('nlp-search-button');
+const nlpSearchInput = document.getElementById('nlp-search-input');
+const nlpResultsArea = document.getElementById('nlp-results-area');
+const nlpSpinner = document.getElementById('nlp-search-spinner');
+
+if (nlpSearchButton) {
+	nlpSearchButton.addEventListener('click', handleNLPSearch);
+}
+
+// Allow pressing Ctrl+Enter or Cmd+Enter to trigger the search
+if (nlpSearchInput) {
+	nlpSearchInput.addEventListener('keydown', (event) => {
+		if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+			event.preventDefault(); // Prevent new line in textarea
+			handleNLPSearch();
+		}
+	});
+}
+
+async function handleNLPSearch() {
+	const query = nlpSearchInput.value.trim();
+	if (!query) {
+		alert('Please enter a clinical description to search.');
+		return;
+	}
+
+	// Show a loading state
+	nlpSpinner.classList.remove('d-none');
+	nlpSearchButton.disabled = true;
+	nlpResultsArea.innerHTML = ''; // Clear previous results
+
+	try {
+		const response = await fetch('/api/nlp_search', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ query: query }),
+		});
+
+		if (!response.ok) {
+			const errorData = await response.json();
+			throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+		}
+
+		const results = await response.json();
+		displayNLPResults(results);
+
+	} catch (error) {
+		console.error('NLP Search Error:', error);
+		nlpResultsArea.innerHTML = `<div class="alert alert-danger">An error occurred: ${error.message}</div>`;
+	} finally {
+		// Restore button to normal state
+		nlpSpinner.classList.add('d-none');
+		nlpSearchButton.disabled = false;
+	}
+}
+
+function displayNLPResults(results) {
+	if (!results || results.length === 0) {
+		nlpResultsArea.innerHTML = '<div class="alert alert-warning text-center">No relevant terms found for the given description.</div>';
+		return;
+	}
+
+	// Map system names to Bootstrap badge colors for clear visual distinction
+	const systemColors = {
+		"Siddha": "bg-primary",
+		"Ayurveda": "bg-success",
+		"Unani": "bg-info"
+	};
+
+	const resultsHtml = results.map(item => {
+		const badgeColor = systemColors[item.system] || 'bg-secondary';
+		// Remove the redundant term from the definition for cleaner display
+		const cleanDefinition = item.full_definition.replace(item.display + ': ', '');
+
+		return `
+						<div class="card shadow-sm mb-3">
+							<div class="card-body">
+								<div class="d-flex justify-content-between align-items-start">
+									<h5 class="card-title mb-1">${item.display}</h5>
+									<span class="badge ${badgeColor} fs-6">${item.system}</span>
+								</div>
+								<h6 class="card-subtitle mb-2 text-muted">Code: ${item.code}</h6>
+								<p class="card-text small mt-2">${cleanDefinition}</p>
+							</div>
+						</div>
+					`;
+	}).join('');
+
+	nlpResultsArea.innerHTML = resultsHtml;
+}
+// ===================================
+// END: NLP CLINICAL NOTES SEARCH LOGIC
+// ===================================
 
 
