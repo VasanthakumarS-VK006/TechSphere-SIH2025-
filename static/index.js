@@ -6,7 +6,7 @@ function returnJson() {
 
 	const payload = { icd: icdValue, namc: namcValue };
 
-	fetch("http://127.0.0.1:5000/api/returnJson", {
+	fetch("{{url_for('returnJson')}", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify(payload)
@@ -36,7 +36,7 @@ searchInput.addEventListener('input', async () => {
 	}
 
 	try {
-		const response = await fetch(`http://127.0.0.1:5000/api/suggestions?q=${encodeURIComponent(query)}`);
+		const response = await fetch("{{url_for('get_suggestions', q = query )}}");
 		if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
 
 		const suggestions = await response.json();
@@ -104,29 +104,15 @@ const mySettings = {
 	apiServerUrl: "https://id.who.int",
 	apiSecured: true,
 	popupMode: true,
-	searchByCodeOrURI: true
+	searchByCodeOrURI: true,
+	flexisearchAvailable: true
 };
 
 
 const myCallbacks = {
-	// queryCallbackFunction: (results) => {
-	//     console.log("Raw results:", results);
-	//
-	//     const container = document.getElementById('my-results');
-	//     container.innerHTML = '';
-	//     results.forEach(entity => {
-	//         const div = document.createElement('div');
-	//         div.textContent = `${entity.code} - ${entity.title}`;
-	//         div.addEventListener('click', () => {
-	//             console.log("Selected entity:", entity);
-	//             // Optional: call selectedEntityFunction yourself if needed
-	//         });
-	//         container.appendChild(div);
-	//     });
-	// },
 
 	getNewTokenFunction: async () => {
-		const url = 'http://127.0.0.1:5000/api/newToken';
+		const url = "{{url_for('newToken')}}";
 		try {
 			const response = await fetch(url);
 			const result = await response.json();
@@ -139,7 +125,6 @@ const myCallbacks = {
 
 	selectedEntityFunction: (selectedEntity, ctwObject) => {
 		// document.getElementById('icdCode').value = `${selectedEntity.code} - ${selectedEntity.title}`;
-		console.log(selectedEntity.code)
 
 		if (selectedEntity.iNo == 1) {
 			ECT.Handler.clear("1");
@@ -168,7 +153,7 @@ function returnJson() {
 
 	const payload2 = { icd: icdValue2, namc: namcValue2 };
 
-	fetch("http://127.0.0.1:5000/api/returnJson", {
+	fetch("{{url_for('returnJson')}", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify(payload2)
@@ -214,7 +199,7 @@ submitButton2.addEventListener('click', async () => {
 	try {
 
 		console.log("Inside the submit's event listener")
-		const response = await fetch(`http://127.0.0.1:5000/api/ICDtoNAMC?q=${encodeURIComponent(selectedTerm)}`);
+		const response = await fetch("{{url_for('ICDtoNAMC', q = selectedTerm)}}");
 		if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
 
 		const suggestions = await response.json();
