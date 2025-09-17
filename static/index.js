@@ -207,6 +207,8 @@ submitButton2.addEventListener('click', async () => {
 		const suggestions = await response.json();
 		console.log(suggestions)
 
+		suggestionsContainer2.innerHTML = ''
+
 		if (suggestions.length > 0) {
 			suggestions.forEach(item => {
 				const div2 = document.createElement('div');
