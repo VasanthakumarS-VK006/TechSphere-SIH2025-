@@ -841,93 +841,12 @@
       }
     });
 
-    // Expose functions globally for inline onclick handlers
-    window.sendOtp = sendOtp;
-    window.verifyOtp = verifyOtp;
-    window.togglePassword = togglePassword;
+   
 
     // Email validation function
     function isValidEmail(email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       return emailRegex.test(email);
-    }
-
-    // OTP helpers
-    function generateOtp(){ return Math.floor(100000 + Math.random()*900000).toString(); }
-    function phoneValid(num){ return /^[0-9]{10}$/.test(num || ''); }
-    // WhatsApp OTP sender (Meta Cloud API or Twilio). Configure via localStorage:
-    //  localStorage.wa_provider = 'meta' | 'twilio'
-    //  For Meta: localStorage.wa_token = 'EAAG...'; localStorage.wa_from_id = 'YOUR_PHONE_NUMBER_ID'
-    //  For Twilio: localStorage.wa_token = 'TWILIO_ACCOUNT_SID:TWILIO_AUTH_TOKEN' (colon-joined basic auth);
-    //               localStorage.wa_from = 'whatsapp:+14155238886'
-    async function sendWhatsAppOtp(phone, code){
-      const provider = (localStorage.getItem('wa_provider') || '').toLowerCase();
-      const token = localStorage.getItem('wa_token') || '';
-      try{
-        if (provider === 'meta' && token && localStorage.getItem('wa_from_id')){
-          const fromId = localStorage.getItem('wa_from_id');
-          // Ensure phone in international format without +
-          const to = phone.startsWith('+') ? phone.slice(1) : ('91' + phone); // default India country code 91
-          const url = `https://graph.facebook.com/v17.0/${fromId}/messages`;
-          const body = {
-            messaging_product: 'whatsapp',
-            to: to,
-            type: 'text',
-            text: { body: `Your CivicConnect verification code is ${code}. It expires in 5 minutes.` }
-          };
-          const res = await fetch(url, { method:'POST', headers:{ 'Authorization': 'Bearer ' + token, 'Content-Type':'application/json' }, body: JSON.stringify(body) });
-          if (!res.ok) throw new Error('Meta API error');
-          return true;
-        }
-        if (provider === 'twilio' && token && localStorage.getItem('wa_from')){
-          const [sid, auth] = token.split(':');
-          const from = localStorage.getItem('wa_from');
-          const to = phone.startsWith('whatsapp:') ? phone : ('whatsapp:+91' + phone);
-          const url = `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`;
-          const form = new URLSearchParams();
-          form.append('From', from);
-          form.append('To', to);
-          form.append('Body', `Your CivicConnect verification code is ${code}. It expires in 5 minutes.`);
-          const res = await fetch(url, { method:'POST', headers:{ 'Authorization': 'Basic ' + btoa(`${sid}:${auth}`), 'Content-Type':'application/x-www-form-urlencoded' }, body: form });
-          if (!res.ok) throw new Error('Twilio API error');
-          return true;
-        }
-      } catch(e){ console.error('WhatsApp send error:', e); }
-      return false;
-    }
-
-    function sendOtp(){
-      try{
-        const phone = document.getElementById('phone').value.trim();
-        if (!phoneValid(phone)) { showNotification('Enter a valid 10-digit mobile number', 'error'); return; }
-        const code = generateOtp();
-        const expiry = Date.now() + 5*60*1000; // 5 minutes
-        sessionStorage.setItem('pendingOtp', JSON.stringify({phone, code, expiry}));
-        // Try WhatsApp first
-        sendWhatsAppOtp(phone, code).then(sent => {
-          if (sent){
-            showNotification('OTP sent via WhatsApp.', 'success');
-          } else {
-            showNotification('OTP sending fallback active. Check console for demo OTP.', 'success');
-            console.log('Demo OTP:', code); // For demo/testing only
-          }
-          // Always show demo OTP below the field for testing as requested
-          const otpHint = document.getElementById('otp-hint');
-          if (otpHint){
-            otpHint.textContent = `Demo OTP (testing only): ${code}. Valid for 5 minutes.`;
-            otpHint.style.display = 'block';
-          }
-        });
-      }catch(e){}
-    }
-    function verifyOtp(){
-      const saved = JSON.parse(sessionStorage.getItem('pendingOtp') || 'null');
-      const entered = (document.getElementById('otp').value || '').trim();
-      if (!saved){ showNotification('Please request OTP first', 'error'); return; }
-      if (Date.now() > saved.expiry){ showNotification('OTP expired. Please request again.', 'error'); return; }
-      if (entered !== saved.code){ showNotification('Invalid OTP. Please try again.', 'error'); return; }
-      sessionStorage.setItem('otpVerified','true');
-      showNotification('Mobile number verified!', 'success');
     }
 
     // Form submission
