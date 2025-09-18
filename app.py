@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, render_template, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime
@@ -8,7 +8,7 @@ app = Flask(__name__)
 CORS(app)
 
 # PostgreSQL config (replace with your actual user/password/db)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:vasanth@localhost:5432/civicdb'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:vishwes@localhost:5433/CivicDb'
 
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -63,6 +63,20 @@ with app.app_context():
 
 
 # Registration
+
+@app.route("/")
+def index():
+    return render_template("home.html")
+
+@app.route("/citizenLogin")
+def citizen_login():
+    return render_template("citizen-login.html")
+
+
+@app.route("/userDashboard")
+def userDashboard():
+    return render_template("userDashboard.html")
+
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.get_json() or {}
