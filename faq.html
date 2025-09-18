@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - CivicConnect | Government of Jharkhand</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #138E0B;
+            --secondary: #0B4DE0;
+            --accent: #FF9800;
+            --light: #F5F9FF;
+            --dark: #1A3A5F;
+            --white: #FFFFFF;
+            --gray: #6B7280;
+            --light-gray: #E5E7EB;
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        header {
+            background: var(--gradient);
+            color: var(--white);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo-icon {
+            font-size: 28px;
+            color: var(--accent);
+        }
+        
+        .logo-text {
+            font-weight: 800;
+            font-size: 26px;
+        }
+        
+        .logo-text span {
+            color: var(--accent);
+        }
+        
+        .back-btn {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: var(--transition);
+        }
+        
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .hero {
+            background: var(--gradient);
+            color: #fff;
+            padding: 90px 0 70px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 320'%3E%3Cpath fill='%23ffffff' fill-opacity='0.1' d='M0,128L48,117.3C96,107,192,85,288,112C384,139,480,213,576,218.7C672,224,768,160,864,138.7C960,117,1056,139,1152,149.3C1248,160,1344,160,1392,160L1440,160L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            animation: fadeInUp 0.8s ease;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            animation: fadeInUp 1s ease;
+        }
+        
+        .search-container {
+            max-width: 600px;
+            margin: 30px auto 0;
+            position: relative;
+            animation: fadeInUp 1.2s ease;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 16px 20px;
+            border-radius: 50px;
+            border: none;
+            box-shadow: var(--shadow);
+            font-size: 16px;
+            padding-left: 50px;
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        
+        main {
+            padding: 60px 0;
+        }
+        
+        .faq-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .faq-header h2 {
+            font-size: 2.2rem;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+        
+        .faq-header p {
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+        
+        .faq-categories {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+        
+        .category-btn {
+            padding: 10px 20px;
+            background: var(--white);
+            border: 1px solid var(--light-gray);
+            border-radius: 50px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .category-btn:hover, .category-btn.active {
+            background: var(--gradient);
+            color: var(--white);
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .faq {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .faq-item {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+            overflow: hidden;
+        }
+        
+        .faq-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+        
+        .faq-q {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 18px;
+        }
+        
+        .faq-q i {
+            transition: var(--transition);
+        }
+        
+        .faq-item.active .faq-q i {
+            transform: rotate(180deg);
+        }
+        
+        .faq-a {
+            color: var(--gray);
+            margin-top: 20px;
+            line-height: 1.7;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease, margin-top 0.3s ease;
+        }
+        
+        .faq-item.active .faq-a {
+            max-height: 500px;
+        }
+        
+        .contact-section {
+            background: var(--white);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            padding: 40px;
+            margin-top: 60px;
+            text-align: center;
+        }
+        
+        .contact-section h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        
+        .contact-section p {
+            color: var(--gray);
+            margin-bottom: 25px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .contact-btn {
+            display: inline-block;
+            padding: 14px 30px;
+            background: var(--gradient);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(11, 78, 224, 0.3);
+        }
+        
+        .contact-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(11, 78, 224, 0.4);
+        }
+        
+        footer {
+            background: var(--dark);
+            color: #fff;
+            padding: 60px 0 20px;
+            margin-top: 60px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-column h4 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+        
+        .footer-column h4::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px;
+        }
+        
+        .footer-column p, .footer-column a {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 12px;
+            display: block;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .footer-column a:hover {
+            color: var(--white);
+            transform: translateX(5px);
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: var(--transition);
+        }
+        
+        .social-links a:hover {
+            background: var(--accent);
+            transform: translateY(-3px);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .faq-header h2 {
+                font-size: 1.8rem;
+            }
+            
+            .faq-item {
+                padding: 20px;
+            }
+            
+            .contact-section {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon"><i class="fas fa-hands-helping"></i></div>
+                    <div class="logo-text">Civic<span>Connect</span></div>
+                </div>
+                <a class="back-btn" href="home.html"><i class="fas fa-arrow-left"></i> Back to Home</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container hero-content">
+            <h1>Frequently Asked Questions</h1>
+            <p>Find answers about reporting, tracking, and resolving civic issues in Jharkhand</p>
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-box" placeholder="Search for questions...">
+            </div>
+        </div>
+    </section>
+
+    <main>
+        <div class="container">
+            <div class="faq-header">
+                <h2>How Can We Help You?</h2>
+                <p>Browse through the most frequently asked questions about CivicConnect</p>
+            </div>
+            
+            <div class="faq-categories">
+                <button class="category-btn active">All Questions</button>
+                <button class="category-btn">Reporting Issues</button>
+                <button class="category-btn">Account & Profile</button>
+                <button class="category-btn">Privacy & Security</button>
+                <button class="category-btn">Department Process</button>
+            </div>
+            
+            <div class="faq">
+                <div class="faq-item active">
+                    <div class="faq-q">What is CivicConnect?<i class="fas fa-chevron-down"></i></div>
+                    <div class="faq-a">CivicConnect is an innovative digital platform launched by the Government of Jharkhand to enable citizens to report civic issues in their communities. It serves as a bridge between residents and local government departments, facilitating efficient reporting and resolution of problems related to infrastructure, sanitation, utilities, and more.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-q">How do I report an issue?<i class="fas fa-chevron-down"></i></div>
+                    <div class="faq-a">Reporting an issue is simple:
+                        <ol>
+                            <li>From the Home page, click on "Report an Issue"</li>
+                            <li>Select the appropriate category for your issue</li>
+                            <li>Provide specific details about the problem</li>
+                            <li>Add the exact location using our interactive map</li>
+                            <li>Attach photos or videos as evidence</li>
+                            <li>Submit your report</li>
+                        </ol>
+                        Your report is automatically routed to the correct department for action.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-q">Can I track my report?<i class="fas fa-chevron-down"></i></div>
+                    <div class="faq-a">Yes, you can track your report in real-time. After submitting an issue, you'll receive a unique tracking ID. Use the "Track Status" option on our website or mobile app to see progress updates, department actions, and estimated resolution time. You'll also receive notifications at key stages of the resolution process.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-q">What types of issues can I report?<i class="fas fa-chevron-down"></i></div>
+                    <div class="faq-a">You can report various civic issues including:
+                        <ul>
+                            <li>Road damage and potholes</li>
+                            <li>Water supply problems</li>
+                            <li>Waste management and garbage collection issues</li>
+                            <li>Malfunctioning street lights</li>
+                            <li>Drainage and sewerage problems</li>
+                            <li>Parks and public space maintenance</li>
+                            <li>Illegal construction and encroachments</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-q">What data is collected?<i class="fas fa-chevron-down"></i></div>
+                    <div class="faq-a">We collect essential information to effectively resolve issues:
+                        <ul>
+                            <li>Your contact information (name, email, phone - optional)</li>
+                            <li>Location details of the reported issue</li>
+                            <li>Photos/videos of the problem</li>
+                            <li>Description of the issue</li>
+                            <li>Category and priority level</li>
+                        </ul>
+                        All data is protected using industry-standard security practices and encryption protocols.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-q">Who can see my report?<i class="fas fa-chevron-down"></i></div>
+                    <div class="faq-a">Your report is primarily visible to relevant government officials responsible for addressing the specific issue. Some information may be shared with other residents in your area to create awareness about ongoing civic works. However, personal identifiers are never publicly displayed without your consent. Aggregated, non-personal data may be used for statistical analysis and transparency reports.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-q">How long does it take to resolve an issue?<i class="fas fa-chevron-down"></i></div>
+                    <div class="faq-a">Resolution time varies based on:
+                        <ul>
+                            <li>Type and complexity of the issue</li>
+                            <li>Department workload and resources</li>
+                            <li>Weather conditions (for outdoor repairs)</li>
+                            <li>Availability of materials and equipment</li>
+                        </ul>
+                        Simple issues may be resolved within 24-48 hours, while complex infrastructure problems might take several weeks. You can check the expected timeline in your tracking dashboard.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-q">Is there a mobile app available?<i class="fas fa-chevron-down"></i></div>
+                    <div class="faq-a">Yes, CivicConnect is available as a mobile app for both Android and iOS devices. You can download it from the Google Play Store or Apple App Store. The mobile app offers all the features of the web platform with additional capabilities like offline reporting, push notifications, and camera integration for easier issue documentation.</div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-q">What if my issue isn't resolved satisfactorily?<i class="fas fa-chevron-down"></i></div>
+                    <div class="faq-a">If you're not satisfied with the resolution:
+                        <ol>
+                            <li>You can reopen the ticket with additional comments</li>
+                            <li>Escalate the issue to a higher authority within the department</li>
+                            <li>Contact our support team for assistance</li>
+                            <li>Use the feedback system to rate the resolution quality</li>
+                        </ol>
+                        Persistent issues may be flagged for special attention by supervisory staff.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contact-section">
+                <h3>Still have questions?</h3>
+                <p>Can't find the answer you're looking for? Please reach out to our friendly support team.</p>
+                <a href="contact.html" class="contact-btn">Contact Support</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h4>About CivicConnect</h4>
+                    <p>CivicConnect is an initiative by the Government of Jharkhand to improve citizen engagement and streamline civic issue resolution.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h4>Quick Links</h4>
+                    <a href="home.html">Home</a>
+                    <a href="citizenlogin.html">Report an Issue</a>
+                    <a href="#">Track Status</a>
+                    <a href="departments.html">Government Departments</a>
+                    <a href="initiatives.html">Government Initiatives</a>
+                </div>
+                
+                <div class="footer-column">
+                    <h4>Resources</h4>
+                    <a href="help.html">Help Center</a>
+                    <a href="guidelines.html">Community Guidelines</a>
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Service</a>
+                    <a href="accessibility.html">Accessibility</a>
+                </div>
+                
+                <div class="footer-column">
+                    <h4>Contact Info</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> Project Building, Dhurwa, Ranchi, Jharkhand 834004</p>
+                    <p><i class="fas fa-phone"></i> +91 XXX XXX XXXX</p>
+                    <p><i class="fas fa-envelope"></i> support@civicconnectjh.gov.in</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2023 CivicConnect - Government of Jharkhand. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // FAQ toggle functionality
+            document.querySelectorAll('.faq-q').forEach(q => {
+                q.addEventListener('click', () => {
+                    const item = q.parentElement;
+                    item.classList.toggle('active');
+                });
+            });
+            
+            // Search functionality
+            const searchBox = document.querySelector('.search-box');
+            searchBox.addEventListener('keyup', () => {
+                const searchTerm = searchBox.value.toLowerCase();
+                document.querySelectorAll('.faq-item').forEach(item => {
+                    const question = item.querySelector('.faq-q').textContent.toLowerCase();
+                    const answer = item.querySelector('.faq-a').textContent.toLowerCase();
+                    
+                    if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Category filter functionality
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    // In a real implementation, this would filter FAQs by category
+                    // For this demo, we'll just show all FAQs
+                    document.querySelectorAll('.faq-item').forEach(item => {
+                        item.style.display = 'block';
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
