@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Citizen Login / Signup - CivicConnect</title>
-  <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#000000">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
@@ -741,39 +739,7 @@
 <button id="installBtn" style="display:none; padding:12px 20px; font-size:16px; background:#000; color:#fff; border:none; border-radius:8px; cursor:pointer;">📲 Install App</button>
 </div> 
   <script>
-     if ("serviceWorker" in navigator) {
-navigator.serviceWorker.register("/sw.js")
-.then(() => console.log("✅ Service Worker registered"))
-.catch(err => console.log("❌ SW registration failed", err));
-}
-
-
-let deferredPrompt;
-const installBtn = document.getElementById("installBtn");
-
-
-// Listen for the beforeinstallprompt event
-window.addEventListener("beforeinstallprompt", (e) => {
-e.preventDefault();
-deferredPrompt = e;
-console.log("📱 Install available");
-installBtn.style.display = "inline-block"; // show button
-});
-
-
-// Handle button click → show install prompt
-installBtn.addEventListener("click", () => {
-installBtn.style.display = "none"; // hide button after click
-deferredPrompt.prompt();
-deferredPrompt.userChoice.then((choice) => {
-if (choice.outcome === "accepted") {
-console.log("✅ User accepted install");
-} else {
-console.log("❌ User dismissed install");
-}
-deferredPrompt = null;
-});
-});
+    
   const toggleBtn = document.getElementById("toggle-btn");
   const formTitle = document.getElementById("form-title");
   const formSubtitle = document.getElementById("form-subtitle");
