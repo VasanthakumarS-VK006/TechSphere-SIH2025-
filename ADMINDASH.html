@@ -1,0 +1,2969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CivicConnect - Admin Dashboard</title>
+
+  <!-- Fonts & icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root{
+      --primary:#138E0B; --primary-dark:#0C7005; --secondary:#0B4DE0;
+      --secondary-dark:#0839B0; --accent:#FF9800; --light:#F5F9FF;
+      --dark:#1A3A5F; --white:#FFFFFF; --gray:#6B7280; --light-gray:#E5E7EB;
+      --gradient:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%);
+      --gradient-dark:linear-gradient(135deg,var(--primary-dark) 0%,var(--secondary-dark) 100%);
+      --sidebar-width:250px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Poppins',sans-serif;}
+    body{background:linear-gradient(135deg,var(--primary) 0%,var(--secondary) 100%);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px;}
+    .container{width:100%;max-width:1600px;background:#fffffff2;border-radius:20px;box-shadow:0 15px 30px rgba(0,0,0,0.2);overflow:hidden;display:flex;min-height:90vh;}
+    .sidebar{width:var(--sidebar-width);background:var(--gradient);color:white;padding:20px 0;display:flex;flex-direction:column;position:relative;overflow:hidden;transition:all 0.3s ease;}
+    .logo-section{padding:0 20px 20px;border-bottom:1px solid rgba(255,255,255,0.1);text-align:center;z-index:2;}
+    .logo-section h1{font-size:1.5rem;margin-top:10px;color:white;text-shadow:2px 2px 4px rgba(0,0,0,0.3);}
+    .nav-links{padding:20px;flex-grow:1;z-index:2;}
+    .nav-links a{display:flex;align-items:center;padding:12px 15px;color:rgba(255,255,255,0.9);text-decoration:none;border-radius:8px;margin-bottom:8px;transition:all 0.3s ease;}
+    .nav-links a:hover,.nav-links a.active{background:rgba(255,255,255,0.15);color:white;transform:translateX(5px);}
+    .nav-links a i{margin-right:10px;font-size:1.2rem;}
+    .user-section{padding:20px;border-top:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;z-index:2;}
+    .user-avatar{width:50px;height:50px;border-radius:50%;background:var(--accent);display:flex;justify-content:center;align-items:center;font-size:1.5rem;color:white;margin-right:15px;box-shadow:0 4px 10px rgba(0,0,0,0.2);}
+    .user-info .name{font-weight:600;color:white;} .user-info .role{font-size:0.8rem;opacity:0.9;color:#FFD700;}
+    .main-content{flex-grow:1;display:flex;flex-direction:column;overflow:auto;}
+    .header{background:var(--white);padding:20px 30px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,0.1);position:relative;}
+    .search-bar{display:flex;align-items:center;background:var(--light);border-radius:50px;padding:8px 20px;width:300px;border:2px solid transparent;transition:all 0.3s ease;}
+    .search-bar:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px rgba(19,142,11,0.1);}
+    .search-bar input{border:none;background:transparent;padding:8px;width:100%;outline:none;}
+    .header-actions{display:flex;gap:15px;}
+    .header-actions .icon{width:40px;height:40px;border-radius:50%;background:var(--light);display:flex;justify-content:center;align-items:center;cursor:pointer;transition:all 0.3s ease;}
+    .content{padding:30px;flex-grow:1;overflow:auto;}
+    .page{display:none;} .page.active{display:block;}
+    .card{background:var(--white);border-radius:15px;padding:25px;box-shadow:0 5px 15px rgba(0,0,0,0.05);margin-bottom:20px;border:1px solid rgba(0,0,0,0.05);}
+    .btn{padding:12px 25px;border:none;border-radius:50px;font-size:1rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px;}
+    .btn-primary{background:var(--gradient);color:var(--white);} .btn-secondary{background:var(--light-gray);color:var(--dark);} .btn-success{background:var(--primary);color:var(--white);}
+    .btn-danger{background:#e74c3c;color:var(--white);} .btn-warning{background:#f39c12;color:var(--white);}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:15px;margin-bottom:20px;}
+    .stat-card{background:var(--white);padding:20px;border-radius:15px;text-align:center;box-shadow:0 3px 10px rgba(0,0,0,0.08);}
+    .stat-card i{font-size:2rem;margin-bottom:10px;color:var(--primary);}
+    .stat-card h3{font-size:1.8rem;margin:10px 0;color:var(--dark);}
+    .stat-card p{color:var(--gray);font-size:0.9rem;}
+    
+    /* Expandable Department Cards */
+    .stat-card.expandable{cursor:pointer;transition:all 0.3s ease;position:relative;}
+    .stat-card.expandable:hover{transform:translateY(-2px);box-shadow:0 5px 15px rgba(0,0,0,0.15);}
+    .expand-icon{position:absolute;top:15px;right:15px;font-size:1rem;color:var(--gray);transition:transform 0.3s ease;}
+    .stat-card.expandable:hover .expand-icon{color:var(--primary);}
+    .stat-card.expandable.expanded .expand-icon{transform:rotate(180deg);}
+    
+    /* Department Details Container */
+    .department-details-container{background:var(--white);border-radius:15px;box-shadow:0 5px 15px rgba(0,0,0,0.1);margin-top:20px;overflow:hidden;}
+    .department-details-header{background:var(--gradient);color:var(--white);padding:20px;display:flex;justify-content:space-between;align-items:center;}
+    .department-details-header h3{margin:0;font-size:1.5rem;}
+    .department-details-content{padding:25px;}
+    .districts-section h4{color:var(--dark);margin-bottom:20px;font-size:1.2rem;border-bottom:2px solid var(--light-gray);padding-bottom:10px;}
+    .districts-list{display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:20px;}
+    .district-card{background:var(--light-gray);border-radius:10px;padding:15px;border:1px solid rgba(0,0,0,0.1);}
+    .district-card h5{color:var(--primary);margin:0 0 10px 0;font-size:1.1rem;display:flex;align-items:center;gap:8px;}
+    .district-card h5 i{font-size:0.9rem;}
+    .wards-list{display:grid;grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));gap:8px;margin-top:10px;}
+    .ward-item{background:var(--white);padding:8px 12px;border-radius:20px;font-size:0.85rem;text-align:center;border:1px solid rgba(0,0,0,0.1);color:var(--dark);}
+    .ward-item:hover{background:var(--primary);color:var(--white);transition:all 0.2s ease;}
+    .tabs{display:flex;gap:10px;margin-bottom:20px;border-bottom:2px solid var(--light-gray);padding-bottom:10px;}
+    .tab{padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:600;color:var(--gray);} .tab.active{background:var(--gradient);color:var(--white);}
+    .reports-list{display:flex;flex-direction:column;gap:15px;max-height:70vh;overflow-y:auto;padding-right:10px;width:100%;}
+    /* Ensure scrollbars visible within cards for long lists */
+    .card .reports-list{max-height:70vh;overflow-y:auto;width:100%;}
+    .report-item{background:var(--white);padding:20px;border-radius:15px;display:flex;gap:15px;align-items:center;cursor:pointer;border:1px solid rgba(0,0,0,0.05);position:relative;overflow:hidden;transition:all 0.3s ease;width:100%;min-height:80px;}
+    .report-item:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,0.1);}
+    
+    /* Custom scrollbar for reports list */
+    .reports-list::-webkit-scrollbar{width:8px;}
+    .reports-list::-webkit-scrollbar-track{background:var(--light-gray);border-radius:4px;}
+    .reports-list::-webkit-scrollbar-thumb{background:var(--primary);border-radius:4px;}
+    .reports-list::-webkit-scrollbar-thumb:hover{background:var(--primary-dark);}
+    .report-icon{width:50px;height:50px;background:var(--gradient);border-radius:50%;display:flex;justify-content:center;align-items:center;color:white;font-size:1.5rem;flex-shrink:0;}
+    .report-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;}
+    .report-title{font-weight:600;margin-bottom:5px;color:var(--dark);font-size:1.1rem;word-wrap:break-word;}
+    .report-desc{color:var(--gray);font-size:0.9rem;margin-bottom:5px;word-wrap:break-word;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+    .report-meta{display:flex;gap:15px;font-size:0.8rem;color:var(--gray);flex-wrap:wrap;align-items:center;}
+    .report-meta span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;}
+    .status-badge{padding:5px 12px;border-radius:20px;font-size:0.8rem;font-weight:600;}
+    
+    /* Responsive improvements for mobile */
+    @media (max-width: 768px) {
+      .report-item{padding:15px;gap:10px;}
+      .report-icon{width:40px;height:40px;font-size:1.1rem;}
+      .report-title{font-size:1rem;}
+      .report-desc{font-size:0.85rem;}
+      .report-meta{gap:8px;font-size:0.75rem;}
+      .report-meta span{max-width:150px;}
+    }
+    .status-new{background:rgba(231,76,60,0.2);color:#e74c3c;} .status-progress{background:rgba(243,156,18,0.2);color:#f39c12;} .status-resolved{background:rgba(46,204,113,0.2);color:#2ecc71;} .status-cancelled{background:rgba(149,165,166,0.25);color:#7f8c8d;}
+    .priority-badge{padding:5px 12px;border-radius:20px;font-size:0.8rem;font-weight:600;margin-left:10px;}
+    .priority-high{background:rgba(231,76,60,0.2);color:#e74c3c;} .priority-medium{background:rgba(243,156,18,0.2);color:#f39c12;} .priority-low{background:rgba(46,204,113,0.2);color:#2ecc71;}
+    .form-group{margin-bottom:20px;} .form-group label{display:block;margin-bottom:8px;font-weight:600;color:var(--dark);}
+    .form-group input,.form-group select,.form-group textarea{width:100%;padding:15px;border:2px solid var(--light-gray);border-radius:10px;font-size:1rem;}
+    .map-container{height:300px;background:#eee;border-radius:15px;margin-bottom:20px;overflow:hidden;}
+    #map{height:100%;width:100%;border-radius:15px;}
+    .issue-categories{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:15px;margin-bottom:20px;}
+    .issue-category{ text-align:center;padding:20px 15px;border:2px solid var(--light-gray);border-radius:15px;cursor:pointer;transition:all 0.3s ease;}
+    .issue-category:hover{transform:translateY(-3px);box-shadow:0 5px 15px rgba(0,0,0,0.1);}
+    .issue-category.selected{ border-color:var(--primary);background:rgba(19,142,11,0.1); }
+    .issue-category i{font-size:2rem;color:var(--primary);margin-bottom:10px;}
+    .action-buttons{display:flex;gap:15px;justify-content:flex-end;margin-top:20px;}
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);justify-content:center;align-items:center;z-index:1000;}
+    .modal-content{background:white;padding:30px;border-radius:15px;width:90%;max-width:560px;max-height:90vh;overflow-y:auto;}
+    .close{font-size:1.5rem;cursor:pointer;color:var(--gray);}
+    .notification{position:fixed;top:20px;right:20px;background:var(--primary);color:white;padding:15px 20px;border-radius:10px;z-index:10000;display:flex;align-items:center;gap:10px;}
+    .notification-badge{position:absolute;top:-5px;right:-5px;background:#e74c3c;color:white;border-radius:50%;width:20px;height:20px;font-size:0.7rem;display:flex;align-items:center;justify-content:center;font-weight:bold;}
+    
+    /* Admin specific styles */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+    /* Make long lists scrollable on messages page */
+    #messages .reports-list{max-height:70vh;overflow-y:auto;padding-right:8px;width:100%;}
+    /* Departments performance */
+    .perf-table{width:100%;border-collapse:collapse}
+    .perf-table th,.perf-table td{padding:10px;border-bottom:1px solid rgba(0,0,0,0.06);text-align:left;font-size:0.95rem}
+    .chip{display:inline-block;padding:4px 10px;border-radius:999px;background:rgba(19,142,11,0.1);color:var(--primary);font-weight:600;font-size:0.8rem}
+    
+    .chart-container {
+      background: var(--white);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    
+    .chart-title {
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      color: var(--dark);
+      font-weight: 600;
+    }
+    
+    .filters {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .filter-item {
+      display: flex;
+      flex-direction: column;
+      min-width: 180px;
+    }
+    
+    .filter-item label {
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+      color: var(--dark);
+      font-weight: 500;
+    }
+    
+    .filter-item select, .filter-item input {
+      padding: 10px;
+      border: 2px solid var(--light-gray);
+      border-radius: 8px;
+    }
+    
+    .ai-analysis {
+      background: var(--light);
+      border-radius: 15px;
+      padding: 15px;
+      margin-top: 15px;
+    }
+    
+    .ai-tag {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 0.8rem;
+      margin-right: 8px;
+      margin-bottom: 8px;
+      background: var(--primary);
+      color: white;
+    }
+    
+    .department-assignment {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .report-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .action-btn {
+      padding: 8px 15px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: none;
+    }
+    
+    .action-btn.assign {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .action-btn.reject {
+      background: #e74c3c;
+      color: white;
+    }
+    
+    .action-btn.resolve {
+      background: #2ecc71;
+      color: white;
+    }
+    
+    .department-badge {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: rgba(11, 77, 224, 0.2);
+      color: var(--secondary);
+    }
+    
+    /* Mobile Toggle Button */
+    .mobile-toggle {
+      display: none;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: var(--gradient);
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      z-index: 100;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 1200px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 992px){ 
+      .container{flex-direction:column;min-height:100vh;border-radius:0;} 
+      .sidebar{width:100%;padding:10px;position:absolute;left:-100%;z-index:100;height:100%;}
+      .sidebar.active{left:0;}
+      .nav-links{display:none;} 
+      .nav-links.active{display:block;} 
+      .mobile-toggle{display:flex;}
+      
+      .header-actions {
+        gap: 10px;
+      }
+      
+      .search-bar {
+        width: 200px;
+      }
+      
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .filters {
+        flex-direction: column;
+      }
+      
+      .filter-item {
+        width: 100%;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .content {
+        padding: 15px;
+      }
+      
+      .card {
+        padding: 15px;
+      }
+      
+      .stats {
+        grid-template-columns: 1fr;
+      }
+      
+      .action-buttons {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .header {
+        padding: 15px;
+      }
+      
+      .search-bar {
+        width: 150px;
+      }
+      
+      .report-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="logo-section">
+        <i class="fas fa-city logo" style="font-size:2.5rem;"></i>
+        <h1>CivicConnect</h1>
+        <p style="color:#FFD700;font-size:0.8rem;margin-top:5px;">Government of Jharkhand</p>
+      </div>
+
+      <div class="nav-links" id="navLinks">
+        <a href="#" class="active" data-page="dashboard"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="#" data-page="issueQueue"><i class="fas fa-tasks"></i> Issue Queue</a>
+        <a href="#" data-page="reports"><i class="fas fa-list"></i> All Reports</a>
+        <a href="#" data-page="mapView"><i class="fas fa-map-marked-alt"></i> Map View</a>
+        <a href="#" data-page="departments"><i class="fas fa-building"></i> Departments</a>
+        <a href="#" data-page="messages"><i class="fas fa-envelope"></i> Messages</a>
+        <a href="#" data-page="analytics"><i class="fas fa-chart-line"></i> Analytics</a>
+        <a href="home.html" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+      </div>
+
+      <div class="user-section">
+        <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
+        <div class="user-info">
+          <div class="name">Admin User</div>
+          <div class="role" id="adminRole">System Administrator</div>
+          <div class="department" id="adminDepartment" style="font-size:0.7rem;color:#FFD700;margin-top:2px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="header">
+        <div class="mobile-toggle" id="mobileToggle">
+          <i class="fas fa-bars"></i>
+        </div>
+        
+        <div class="search-bar">
+          <i class="fas fa-search"></i>
+          <input id="searchInput" type="text" placeholder="Search issues...">
+        </div>
+
+        <div class="header-actions">
+          <div class="icon notification-icon" id="notificationIcon" onclick="toggleAdminNotifications()" style="position:relative;cursor:pointer;">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+            <div id="adminNotificationDropdown" class="notification-dropdown" style="display:none;position:absolute;top:100%;right:0;background:white;border:1px solid #ddd;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);min-width:350px;max-height:400px;overflow-y:auto;z-index:1000;">
+              <div class="notification-header" style="padding:15px;border-bottom:1px solid #eee;font-weight:bold;color:var(--dark);">
+                <i class="fas fa-bell"></i> Department Notifications
+              </div>
+              <div id="adminNotificationList" class="notification-list" style="max-height:300px;overflow-y:auto;">
+                <!-- Admin notifications will be populated here -->
+              </div>
+              <div class="notification-footer" style="padding:10px;border-top:1px solid #eee;text-align:center;">
+                <button onclick="markAllAdminNotificationsRead()" style="background:none;border:none;color:var(--primary);cursor:pointer;font-size:0.9rem;">
+                  Mark all as read
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="icon"><i class="fas fa-cog"></i></div>
+        </div>
+      </div>
+
+      <div class="content">
+        <!-- Dashboard -->
+        <div id="dashboard" class="page active">
+          <div class="dashboard-header" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <div>
+              <h2>Admin Dashboard</h2>
+              <div id="adminBadge" style="display:none;background:linear-gradient(45deg,#FFD700,#FFA500);color:#000;padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:bold;margin-top:5px;display:inline-block;">
+                <i class="fas fa-crown"></i> SUPER ADMIN
+              </div>
+            </div>
+            <div class="header-actions">
+              <button class="btn btn-primary" onclick="generateReport()"><i class="fas fa-download"></i> Generate Report</button>
+            </div>
+          </div>
+
+          <div class="stats">
+            <div class="stat-card">
+              <i class="fas fa-exclamation-circle"></i>
+              <h3 id="totalReports">142</h3>
+              <p>Total Reports</p>
+            </div>
+            <div class="stat-card">
+              <i class="fas fa-tasks"></i>
+              <h3 id="pendingReview">28</h3>
+              <p>Pending Review</p>
+            </div>
+            <div class="stat-card">
+              <i class="fas fa-spinner"></i>
+              <h3 id="inProgress">64</h3>
+              <p>In Progress</p>
+            </div>
+            <div class="stat-card">
+              <i class="fas fa-check-circle"></i>
+              <h3 id="resolved">50</h3>
+              <p>Resolved Issues</p>
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <div>
+              <div class="card">
+                <h3>Recent Activity</h3>
+                <div class="reports-list" id="recentReportsList">
+                  <!-- Reports will be populated by JavaScript -->
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <div class="card">
+                <h3>Issue Distribution</h3>
+                <canvas id="issueTypeChart" height="250"></canvas>
+              </div>
+              
+              <div class="card">
+                <h3>Department Performance</h3>
+                <canvas id="departmentChart" height="250"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Issue Queue -->
+        <div id="issueQueue" class="page">
+          <div class="dashboard-header">
+            <h2>Issue Queue</h2>
+            <p>Review and assign newly reported issues</p>
+          </div>
+
+          <div class="filters">
+            <div class="filter-item">
+              <label for="categoryFilter">Category</label>
+              <select id="categoryFilter">
+                <option value="all">All Categories</option>
+                <option value="roads">Roads</option>
+                <option value="sanitation">Sanitation</option>
+                <option value="traffic">Traffic</option>
+                <option value="utilities">Utilities</option>
+                <option value="parks">Parks</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            
+            <div class="filter-item">
+              <label for="priorityFilter">Priority</label>
+              <select id="priorityFilter">
+                <option value="all">All Priorities</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+            
+            <div class="filter-item">
+              <label for="dateFilter">Date</label>
+              <input type="date" id="dateFilter">
+            </div>
+            
+            <div class="filter-item">
+              <label>&nbsp;</label>
+              <button class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="reports-list" id="queueReportsList">
+              <!-- Reports will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+
+        <!-- All Reports -->
+        <div id="reports" class="page">
+          <div class="dashboard-header">
+            <h2>All Reports</h2>
+            <p>View and manage all reported issues</p>
+          </div>
+
+          <div class="filters">
+            <div class="filter-item">
+              <label for="reportStatusFilter">Status</label>
+              <select id="reportStatusFilter">
+                <option value="all">All Statuses</option>
+                <option value="new">New</option>
+                <option value="assigned">Assigned</option>
+                <option value="in-progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+              </select>
+            </div>
+            
+            <div class="filter-item">
+              <label for="reportDepartmentFilter">Department</label>
+              <select id="reportDepartmentFilter">
+                <option value="all">All Departments</option>
+                <option value="Public Works Department">Public Works Department</option>
+                <option value="Water Supply Department">Water Supply Department</option>
+                <option value="Electricity Board">Electricity Board</option>
+                <option value="Sanitation Department">Sanitation Department</option>
+                <option value="Traffic Management">Traffic Management</option>
+                <option value="Parks & Recreation">Parks & Recreation</option>
+                <option value="Municipal Office">Municipal Office</option>
+              </select>
+            </div>
+            
+            <div class="filter-item">
+              <label>&nbsp;</label>
+              <button class="btn btn-primary" onclick="applyReportFilters()">Apply Filters</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="reports-list" id="allReportsList">
+              <!-- Reports will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Map View -->
+        <div id="mapView" class="page">
+          <div class="dashboard-header"><h2>Map View</h2></div>
+          <div class="card">
+            <div class="filters">
+              <div class="filter-item">
+                <label for="mapStatusFilter">Status</label>
+                <select id="mapStatusFilter">
+                  <option value="all">All Statuses</option>
+                  <option value="new">New</option>
+                  <option value="assigned">Assigned</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="resolved">Resolved</option>
+                </select>
+              </div>
+              
+              <div class="filter-item">
+                <label for="mapCategoryFilter">Category</label>
+                <select id="mapCategoryFilter">
+                  <option value="all">All Categories</option>
+                  <option value="roads">Roads</option>
+                  <option value="sanitation">Sanitation</option>
+                  <option value="traffic">Traffic</option>
+                  <option value="utilities">Utilities</option>
+                  <option value="parks">Parks</option>
+                </select>
+              </div>
+              
+              <div class="filter-item">
+                <label>&nbsp;</label>
+                <button class="btn btn-primary" onclick="updateMapView()">Update Map</button>
+              </div>
+            </div>
+            
+            <div id="mapViewMap" style="height:500px;border-radius:12px;margin-top:10px;"></div>
+          </div>
+        </div>
+
+        <!-- Departments -->
+        <div id="departments" class="page">
+          <div class="dashboard-header"><h2>Departments</h2></div>
+          <div class="card">
+            <h3>Manage Departments</h3>
+            <div class="stats">
+              <div class="stat-card expandable" onclick="toggleDepartmentDetails('public-works')">
+                <i class="fas fa-road"></i>
+                <h3 id="deptRoadsCount">0</h3>
+                <p>Public Works Department</p>
+                <i class="fas fa-chevron-down expand-icon"></i>
+              </div>
+              <div class="stat-card expandable" onclick="toggleDepartmentDetails('water-supply')">
+                <i class="fas fa-tint"></i>
+                <h3 id="deptWaterCount">0</h3>
+                <p>Water Supply Department</p>
+                <i class="fas fa-chevron-down expand-icon"></i>
+              </div>
+              <div class="stat-card expandable" onclick="toggleDepartmentDetails('electricity')">
+                <i class="fas fa-bolt"></i>
+                <h3 id="deptElectricityCount">0</h3>
+                <p>Electricity Board</p>
+                <i class="fas fa-chevron-down expand-icon"></i>
+              </div>
+              <div class="stat-card expandable" onclick="toggleDepartmentDetails('sanitation')">
+                <i class="fas fa-trash"></i>
+                <h3 id="deptSanitationCount">0</h3>
+                <p>Sanitation Department</p>
+                <i class="fas fa-chevron-down expand-icon"></i>
+              </div>
+              <div class="stat-card expandable" onclick="toggleDepartmentDetails('traffic')">
+                <i class="fas fa-traffic-light"></i>
+                <h3 id="deptTrafficCount">0</h3>
+                <p>Traffic Management</p>
+                <i class="fas fa-chevron-down expand-icon"></i>
+              </div>
+              <div class="stat-card expandable" onclick="toggleDepartmentDetails('parks')">
+                <i class="fas fa-tree"></i>
+                <h3 id="deptParksCount">0</h3>
+                <p>Parks & Recreation</p>
+                <i class="fas fa-chevron-down expand-icon"></i>
+              </div>
+            </div>
+            
+            <!-- Department Details Container -->
+            <div id="departmentDetailsContainer" class="department-details-container" style="display: none;">
+              <div class="department-details-header">
+                <h3 id="selectedDepartmentName">Department Details</h3>
+                <button class="btn btn-secondary" onclick="closeDepartmentDetails()">
+                  <i class="fas fa-times"></i> Close
+                </button>
+              </div>
+              <div class="department-details-content">
+                <div class="districts-section">
+                  <h4>Jharkhand Districts & Wards</h4>
+                  <div id="districtsList" class="districts-list">
+                    <!-- Districts will be populated here -->
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="action-buttons">
+              <button class="btn btn-primary" onclick="openDeptModal()"><i class="fas fa-plus"></i> Add Department</button>
+              <button class="btn btn-secondary" onclick="openDeptSettings()"><i class="fas fa-cog"></i> Department Settings</button>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Performance by District</h3>
+            <div class="filters" style="margin-top:10px;">
+              <div class="filter-item">
+                <label for="districtFilter">District</label>
+                <select id="districtFilter" onchange="renderDeptPerformance()">
+                  <option value="all">All Districts</option>
+                  <option>Ranchi</option><option>Dhanbad</option><option>Jamshedpur</option><option>Bokaro</option>
+                  <option>Deoghar</option><option>Dumka</option><option>Giridih</option><option>Hazaribagh</option>
+                  <option>Koderma</option><option>Chatra</option><option>Garhwa</option><option>Palamu</option>
+                  <option>Latehar</option><option>Lohardaga</option><option>Gumla</option><option>Simdega</option>
+                  <option>Khunti</option><option>West Singhbhum</option><option>East Singhbhum</option>
+                  <option>Saraikela Kharsawan</option><option>Jamtara</option><option>Pakur</option>
+                  <option>Sahebganj</option><option>Godda</option>
+                </select>
+              </div>
+            </div>
+            <div style="overflow:auto;">
+              <table class="perf-table" id="deptPerfTable">
+                <thead>
+                  <tr>
+                    <th>Department</th>
+                    <th>District</th>
+                    <th>Submitted</th>
+                    <th>In Progress</th>
+                    <th>Resolved</th>
+                    <th>Resolution Rate</th>
+                    <th>Avg. Time</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        <div id="messages" class="page">
+          <div class="dashboard-header">
+            <h2>Department Messages</h2>
+            <p>Communicate with departments and track message status</p>
+          </div>
+
+          <div class="filters">
+            <div class="filter-item">
+              <label for="messageDepartmentFilter">Department</label>
+              <select id="messageDepartmentFilter">
+                <option value="all">All Departments</option>
+                <option value="Public Works Department">Public Works Department</option>
+                <option value="Water Supply Department">Water Supply Department</option>
+                <option value="Electricity Board">Electricity Board</option>
+                <option value="Sanitation Department">Sanitation Department</option>
+                <option value="Traffic Management">Traffic Management</option>
+                <option value="Parks & Recreation">Parks & Recreation</option>
+                <option value="Municipal Office">Municipal Office</option>
+              </select>
+            </div>
+            
+            <div class="filter-item">
+              <label for="messageStatusFilter">Status</label>
+              <select id="messageStatusFilter">
+                <option value="all">All Messages</option>
+                <option value="new">New</option>
+                <option value="read">Read</option>
+                <option value="responded">Responded</option>
+              </select>
+            </div>
+            
+            <div class="filter-item">
+              <label>&nbsp;</label>
+              <button class="btn btn-primary" onclick="applyMessageFilters()">Apply Filters</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="action-buttons" style="margin-bottom: 20px;">
+              <button class="btn btn-primary" onclick="showSendMessageModal()">
+                <i class="fas fa-plus"></i> Send Message
+              </button>
+              <button class="btn btn-secondary" onclick="markAllAsRead()">
+                <i class="fas fa-check-double"></i> Mark All as Read
+              </button>
+            </div>
+            
+            <div class="reports-list" id="messagesList" style="display:flex;flex-direction:column;gap:12px;">
+              <!-- Messages will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Analytics -->
+        <div id="analytics" class="page">
+          <div class="dashboard-header"><h2>Analytics</h2></div>
+          
+          <div class="stats">
+            <div class="stat-card">
+              <i class="fas fa-clock"></i>
+              <h3>2.3 days</h3>
+              <p>Average Resolution Time</p>
+            </div>
+            <div class="stat-card">
+              <i class="fas fa-chart-line"></i>
+              <h3>78%</h3>
+              <p>Resolution Rate</p>
+            </div>
+            <div class="stat-card">
+              <i class="fas fa-users"></i>
+              <h3>1,248</h3>
+              <p>Active Users</p>
+            </div>
+            <div class="stat-card">
+              <i class="fas fa-map-marker-alt"></i>
+              <h3>14</h3>
+              <p>Areas Covered</p>
+            </div>
+          </div>
+          
+          <div class="dashboard-grid">
+            <div class="chart-container">
+              <div class="chart-title">Reports Over Time</div>
+              <canvas id="reportsOverTimeChart" height="300"></canvas>
+            </div>
+            
+            <div class="chart-container">
+              <div class="chart-title">Resolution Rate by Department</div>
+              <canvas id="resolutionRateChart" height="300"></canvas>
+            </div>
+          </div>
+          
+          <div class="card">
+            <h3>Export Data</h3>
+            <div class="action-buttons">
+              <button class="btn btn-primary"><i class="fas fa-file-csv"></i> Export as CSV</button>
+              <button class="btn btn-primary"><i class="fas fa-file-excel"></i> Export as Excel</button>
+              <button class="btn btn-primary"><i class="fas fa-file-pdf"></i> Export as PDF</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Report Detail Modal -->
+  <div class="modal" id="reportDetailModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('reportDetailModal')">&times;</span>
+      
+      <div class="report-detail-header">
+        <div class="report-icon"><i class="fas fa-road" id="detailIcon"></i></div>
+        <div>
+          <h2 id="detailTitle">Pothole on Main Street</h2>
+          <div class="status-badge status-progress" id="detailStatus">In Progress</div>
+          <div class="priority-badge priority-high" id="detailPriority">High Priority</div>
+        </div>
+      </div>
+      
+      <div class="report-detail-body">
+        <div>
+          <h3>Description</h3>
+          <p id="detailDescription">Large pothole near the intersection of Main Street and 5th Avenue causing traffic issues.</p>
+          
+          <div class="ai-analysis">
+            <h4>AI Analysis</h4>
+            <div id="aiTags">
+              <span class="ai-tag">Pothole</span>
+              <span class="ai-tag">Road Damage</span>
+              <span class="ai-tag">Traffic Hazard</span>
+            </div>
+            <p id="aiSummary">AI analysis indicates this is a high-priority issue requiring immediate attention from the Roads Department.</p>
+          </div>
+          
+          <h3 style="margin-top:20px;">Details</h3>
+          <div style="display:grid;grid-template-columns:auto 1fr;gap:10px 20px;">
+            <strong>Category:</strong>
+            <span id="detailCategory">Roads</span>
+            
+            <strong>Location:</strong>
+            <span id="detailLocation">Downtown</span>
+            
+            <strong>Reported:</strong>
+            <span id="detailTime">2 hours ago</span>
+            
+            <strong>Department:</strong>
+            <span id="detailDepartment">Roads Department</span>
+            
+            <strong>Reference ID:</strong>
+            <span id="detailId">CIVIC-2023-001</span>
+          </div>
+          
+          <div class="department-assignment">
+            <label for="assignDepartment"><strong>Assign to:</strong></label>
+            <select id="assignDepartment">
+              <option value="">Select Department</option>
+              <option value="Public Works Department">Public Works Department</option>
+              <option value="Water Supply Department">Water Supply Department</option>
+              <option value="Electricity Board">Electricity Board</option>
+              <option value="Sanitation Department">Sanitation Department</option>
+              <option value="Traffic Management">Traffic Management</option>
+              <option value="Parks & Recreation">Parks & Recreation</option>
+              <option value="Municipal Office">Municipal Office</option>
+            </select>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <label for="assignDeadline"><strong>Deadline:</strong></label>
+              <input type="date" id="assignDeadline" />
+            </div>
+            <button class="action-btn assign" onclick="assignDepartment()">Assign</button>
+          </div>
+          
+          <div class="report-actions">
+            <button class="action-btn resolve" onclick="resolveIssue()"><i class="fas fa-check"></i> Mark as Resolved</button>
+            <button class="action-btn reject" onclick="rejectIssue()"><i class="fas fa-times"></i> Reject Report</button>
+            <button class="action-btn" style="background:#95a5a6;color:white;" onclick="cancelIssue()"><i class="fas fa-ban"></i> Cancel Process</button>
+          </div>
+        </div>
+        
+        <div>
+          <h3>Location Map</h3>
+          <div class="map-container">
+            <div id="detailMap"></div>
+          </div>
+          
+          <h3 style="margin-top:20px;">Uploaded Image</h3>
+          <img id="detailImage" src="" style="max-width:100%;border-radius:8px;display:none;">
+          <div id="noImageMessage" style="display:none;color:var(--gray);font-style:italic;">No image uploaded with this report</div>
+          
+          <h3 style="margin-top:20px;">Updates</h3>
+          <div class="updates-list" id="detailUpdates">
+            <div style="display:flex;gap:10px;margin-bottom:15px;">
+              <div style="width:40px;height:40px;background:var(--light-gray);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                <i class="fas fa-check" style="color:var(--primary);"></i>
+              </div>
+              <div>
+                <strong>Report submitted</strong>
+                <p style="font-size:0.9rem;color:var(--gray);margin:0;">2 hours ago</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Send Message Modal -->
+  <div class="modal" id="sendMessageModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('sendMessageModal')">&times;</span>
+      
+      <h2>Send Message to Department</h2>
+      
+      <div class="form-group">
+        <label for="messageToDepartment">To Department</label>
+        <select id="messageToDepartment" required>
+          <option value="">Select Department</option>
+          <option value="Public Works Department">Public Works Department</option>
+          <option value="Water Supply Department">Water Supply Department</option>
+          <option value="Electricity Board">Electricity Board</option>
+          <option value="Sanitation Department">Sanitation Department</option>
+          <option value="Traffic Management">Traffic Management</option>
+          <option value="Parks & Recreation">Parks & Recreation</option>
+          <option value="Municipal Office">Municipal Office</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="messageSubject">Subject</label>
+        <input type="text" id="messageSubject" placeholder="Enter message subject" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="messageContent">Message</label>
+        <textarea id="messageContent" rows="5" placeholder="Enter your message" required></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label for="messagePriority">Priority</label>
+        <select id="messagePriority">
+          <option value="low">Low</option>
+          <option value="medium" selected>Medium</option>
+          <option value="high">High</option>
+          <option value="urgent">Urgent</option>
+        </select>
+      </div>
+      
+      <div class="action-buttons">
+        <button class="btn btn-primary" onclick="sendMessage()">
+          <i class="fas fa-paper-plane"></i> Send Message
+        </button>
+        <button class="btn btn-secondary" onclick="closeModal('sendMessageModal')">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Message Modal -->
+  <div class="modal" id="viewMessageModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('viewMessageModal')">&times;</span>
+      <h2 id="vmTitle">Message</h2>
+      <p id="vmDept" style="color:var(--gray);"></p>
+      <div id="vmMeta" style="display:flex;gap:12px;flex-wrap:wrap;margin:10px 0 15px;">
+        <span id="vmTime" style="color:var(--gray);"></span>
+        <span id="vmCategory" class="department-badge" style="background:rgba(19,142,11,0.1);"></span>
+        <span id="vmPriority" class="priority-badge priority-medium">Medium</span>
+      </div>
+      <div style="white-space:pre-line;margin-bottom:12px;" id="vmMessage"></div>
+      <div style="white-space:pre-line;color:var(--gray)" id="vmDetails"></div>
+    </div>
+  </div>
+
+  <!-- Department Add/Edit Modal -->
+  <div class="modal" id="deptModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('deptModal')">&times;</span>
+      <h2 id="deptModalTitle">Add Department</h2>
+      <div class="form-group">
+        <label for="deptName">Department Name</label>
+        <input id="deptName" placeholder="e.g., Public Works Department" style="width:100%;padding:12px;border:2px solid var(--light-gray);border-radius:10px;" />
+      </div>
+      <div class="form-group">
+        <label for="deptIcon">Icon (FontAwesome class)</label>
+        <input id="deptIcon" placeholder="e.g., fa-road" style="width:100%;padding:12px;border:2px solid var(--light-gray);border-radius:10px;" />
+      </div>
+      <div class="form-group">
+        <label for="deptDistrict">Default District</label>
+        <input id="deptDistrict" placeholder="e.g., Ranchi" style="width:100%;padding:12px;border:2px solid var(--light-gray);border-radius:10px;" />
+      </div>
+      <div class="action-buttons">
+        <button class="btn btn-primary" onclick="saveDepartment()"><i class="fas fa-save"></i> Save</button>
+        <button class="btn btn-secondary" onclick="closeModal('deptModal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification -->
+  <div id="notificationWrap"></div>
+
+  <!-- Libs: Leaflet -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    /***********************************************************
+     * Globals & Map setup
+     ***********************************************************/
+    let mapViewMap, detailMap;
+    let allReports = [];
+    let filteredReports = [];
+    let currentReport = null;
+    
+    // Initialize with sample reports if none exist
+    if (localStorage.getItem('allReports')) {
+      allReports = JSON.parse(localStorage.getItem('allReports'));
+    } else {
+      // Sample reports data
+      allReports = [
+        {
+          id: 'CIVIC-2023-001',
+          title: 'Pothole on Main Street',
+          description: 'Large pothole near the intersection of Main Street and 5th Avenue causing traffic issues.',
+          locationText: 'Downtown',
+          lat: 23.6345,
+          lon: 85.3803,
+          category: 'Roads',
+          status: 'In Progress',
+          priority: 'high',
+          time: '2 hours ago',
+          department: 'Roads Department',
+          userId: 'user123',
+          aiAnalysis: {
+            tags: ['Pothole', 'Road Damage', 'Traffic Hazard'],
+            summary: 'AI analysis indicates this is a high-priority issue requiring immediate attention from the Roads Department.',
+            confidence: 0.92
+          },
+          updates: [
+            { type: 'submitted', text: 'Report submitted', time: '2 hours ago' },
+            { type: 'assigned', text: 'Assigned to field agent', time: '1 hour ago' }
+          ]
+        },
+        {
+          id: 'CIVIC-2023-002',
+          title: 'Overflowing Trash Bin',
+          description: 'Public trash bin at Central Park is overflowing with garbage spreading to the sidewalk.',
+          locationText: 'Central Park',
+          lat: 23.6401,
+          lon: 85.3924,
+          category: 'Sanitation',
+          status: 'Submitted',
+          priority: 'medium',
+          time: '1 day ago',
+          department: 'Sanitation Dept',
+          userId: 'user123',
+          aiAnalysis: {
+            tags: ['Trash Overflow', 'Sanitation', 'Public Health'],
+            summary: 'Moderate priority issue. Sanitation department should address within 48 hours.',
+            confidence: 0.87
+          },
+          updates: [
+            { type: 'submitted', text: 'Report submitted', time: '1 day ago' }
+          ]
+        },
+        {
+          id: 'CIVIC-2023-003',
+          title: 'Malfunctioning Traffic Light',
+          description: 'Traffic light at Oak Street and Maple Avenue is flashing red in all directions.',
+          locationText: 'Westside',
+          lat: 23.6287,
+          lon: 85.3642,
+          category: 'Traffic',
+          status: 'Resolved',
+          priority: 'high',
+          time: '3 days ago',
+          department: 'Traffic Management',
+          userId: 'user123',
+          aiAnalysis: {
+            tags: ['Traffic Light', 'Malfunction', 'Safety Hazard'],
+            summary: 'High priority safety issue requiring immediate attention.',
+            confidence: 0.95
+          },
+          updates: [
+            { type: 'submitted', text: 'Report submitted', time: '3 days ago' },
+            { type: 'assigned', text: 'Assigned to traffic department', time: '2 days ago' },
+            { type: 'resolved', text: 'Issue resolved', time: '1 day ago' }
+          ]
+        }
+      ];
+      localStorage.setItem('allReports', JSON.stringify(allReports));
+    }
+
+    function initMaps() {
+      // map view map
+      mapViewMap = L.map('mapViewMap', { preferCanvas:true }).setView([23.6345,85.3803], 12);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {updateWhenIdle:true}).addTo(mapViewMap);
+      
+      // Add markers to map view
+      updateMapView();
+      
+      // Initialize detail map (will be set when showing report details)
+      detailMap = L.map('detailMap', { preferCanvas:true }).setView([23.6345, 85.3803], 15);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(detailMap);
+    }
+
+    document.addEventListener('DOMContentLoaded', function(){
+      // Initialize admin dashboard with department info
+      initializeAdminDashboard();
+      
+      // Refresh from localStorage (pull latest from user submissions)
+      try { allReports = JSON.parse(localStorage.getItem('allReports')) || allReports; } catch(e){}
+      initMaps();
+      filteredReports = [...allReports];
+      
+      // Initialize charts
+      initCharts();
+      
+      // Load reports into queue and all reports lists
+      loadQueueReports();
+      loadAllReports();
+      loadRecentReports();
+      updateDepartmentStats();
+      
+      // Load admin notifications
+      loadAdminNotifications();
+
+      // Initial render for departments performance
+      try { renderDeptPerformance(); } catch(e){}
+
+      // nav link clicks
+      document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', function(e){
+          e.preventDefault();
+          const page = this.getAttribute('data-page');
+          if (page) showPage(page);
+        });
+      });
+
+      // Mobile toggle
+      document.getElementById('mobileToggle').addEventListener('click', function() {
+        document.getElementById('sidebar').classList.toggle('active');
+      });
+      
+      // Check for notifications
+      checkForNotifications();
+      // Deadline checks
+      try { checkDeadlines(); } catch(e){}
+      setInterval(() => { try { checkDeadlines(); } catch(e){} }, 60000);
+      
+      // Check for new reports every 5 seconds
+      setInterval(() => { try { checkForNewReports(); } catch(e){} }, 5000);
+      
+      // Check for new notifications every 3 seconds
+      setInterval(() => { try { loadAdminNotifications(); } catch(e){} }, 3000);
+    });
+
+    /***********************************************************
+     * Admin Dashboard Initialization
+     ***********************************************************/
+    function initializeAdminDashboard() {
+      // Check if admin is logged in
+      const isLoggedIn = localStorage.getItem('adminLoggedIn');
+      const adminDepartment = localStorage.getItem('adminDepartment');
+      
+      if (!isLoggedIn) {
+        // Redirect to login if not logged in
+        window.location.href = 'adminlogin.html';
+        return;
+      }
+      
+      // Update admin info display
+      if (adminDepartment) {
+        document.getElementById('adminDepartment').textContent = adminDepartment;
+        
+        // Update role based on department
+        if (adminDepartment === 'Super Admin') {
+          document.getElementById('adminRole').textContent = 'Super Administrator';
+          document.getElementById('adminRole').style.color = '#FFD700';
+          document.getElementById('adminRole').style.fontWeight = 'bold';
+          
+          // Show super admin badge
+          const adminBadge = document.getElementById('adminBadge');
+          if (adminBadge) {
+            adminBadge.style.display = 'inline-block';
+          }
+        } else {
+          document.getElementById('adminRole').textContent = 'Department Administrator';
+          document.getElementById('adminRole').style.color = '#FFD700';
+        }
+      }
+      
+      // Set default department filter for non-super admins
+      if (adminDepartment && adminDepartment !== 'Super Admin') {
+        const deptFilter = document.getElementById('reportDepartmentFilter');
+        if (deptFilter) {
+          deptFilter.value = adminDepartment;
+        }
+        
+        // Hide department filter for non-super admins since they can only see their department
+        if (deptFilter) {
+          deptFilter.style.display = 'none';
+          const deptLabel = deptFilter.previousElementSibling;
+          if (deptLabel && deptLabel.tagName === 'LABEL') {
+            deptLabel.style.display = 'none';
+          }
+        }
+        
+        // Also hide department filter in messages page
+        const messageDeptFilter = document.getElementById('messageDepartmentFilter');
+        if (messageDeptFilter) {
+          messageDeptFilter.style.display = 'none';
+          const messageDeptLabel = messageDeptFilter.previousElementSibling;
+          if (messageDeptLabel && messageDeptLabel.tagName === 'LABEL') {
+            messageDeptLabel.style.display = 'none';
+          }
+        }
+      }
+    }
+    
+    function updateDepartmentStats() {
+      const departments = {
+        'Public Works Department': 'deptRoadsCount',
+        'Water Supply Department': 'deptWaterCount',
+        'Electricity Board': 'deptElectricityCount',
+        'Sanitation Department': 'deptSanitationCount',
+        'Traffic Management': 'deptTrafficCount',
+        'Parks & Recreation': 'deptParksCount'
+      };
+      
+      // Count reports by department - start with 0
+      const deptCounts = {};
+      Object.keys(departments).forEach(dept => {
+        deptCounts[dept] = 0;
+      });
+      
+      // Count actual reports
+      allReports.forEach(report => {
+        if (report.department && departments[report.department] && report.status !== 'Resolved') {
+          deptCounts[report.department]++;
+        }
+      });
+      
+      // Update UI
+      Object.entries(departments).forEach(([dept, elementId]) => {
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.textContent = deptCounts[dept];
+        }
+      });
+    }
+
+    /***********************************************************
+     * Page nav & UI helpers
+     ***********************************************************/
+    function showPage(pageId){
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      const page = document.getElementById(pageId);
+      if (page) page.classList.add('active');
+
+      // update nav active
+      document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+      const nav = document.querySelector(`.nav-links a[data-page="${pageId}"]`);
+      if (nav) nav.classList.add('active');
+      
+      // Close sidebar on mobile after navigation
+      if (window.innerWidth <= 992) {
+        document.getElementById('sidebar').classList.remove('active');
+      }
+      
+      // If map view page, update the map
+      if (pageId === 'mapView') {
+        setTimeout(() => {
+          mapViewMap.invalidateSize();
+        }, 300);
+      }
+      
+      // Load appropriate data when switching pages
+      if (pageId === 'issueQueue') {
+        loadQueueReports();
+      }
+      
+      if (pageId === 'reports') {
+        loadAllReports();
+      }
+      
+      if (pageId === 'dashboard') {
+        loadRecentReports();
+      }
+      
+      if (pageId === 'messages') {
+        loadMessages();
+      }
+    }
+
+    function showNotification(message, type = 'success') {
+      const id = 'note_'+Date.now();
+      const el = document.createElement('div');
+      el.id = id;
+      el.className = 'notification';
+      if (type === 'error') el.style.background = '#e74c3c';
+      el.innerHTML = '<i class="fas fa-'+(type==='error'?'exclamation-circle':'check-circle')+'"></i><span>'+message+'</span>';
+      document.getElementById('notificationWrap').appendChild(el);
+      setTimeout(()=>{ if(document.getElementById(id)) document.getElementById(id).remove(); },3000);
+    }
+
+    function closeModal(id){ document.getElementById(id).style.display='none'; }
+    
+    function getStatusColor(status) {
+      switch(status.toLowerCase()) {
+        case 'submitted': return '#e74c3c';
+        case 'in progress': return '#f39c12';
+        case 'resolved': return '#2ecc71';
+        case 'assigned': return '#3498db';
+        default: return '#95a5a6';
+      }
+    }
+
+    /***********************************************************
+     * Charts initialization
+     ***********************************************************/
+    function initCharts() {
+      // Issue Type Chart
+      const issueTypeCtx = document.getElementById('issueTypeChart').getContext('2d');
+      window.issueTypeChart = new Chart(issueTypeCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Roads', 'Sanitation', 'Traffic', 'Utilities', 'Parks', 'Other'],
+          datasets: [{
+            data: [42, 28, 35, 19, 12, 6],
+            backgroundColor: [
+              '#138E0B', '#0B4DE0', '#FF9800', '#9C27B0', '#4CAF50', '#607D8B'
+            ]
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+      
+      // Department Performance Chart
+      const deptCtx = document.getElementById('departmentChart').getContext('2d');
+      window.departmentChart = new Chart(deptCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Roads', 'Sanitation', 'Traffic', 'Utilities', 'Parks'],
+          datasets: [{
+            label: 'Avg. Resolution Time (days)',
+            data: [2.1, 1.8, 3.2, 2.5, 4.0],
+            backgroundColor: '#138E0B'
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Days'
+              }
+            }
+          }
+        }
+      });
+      
+      // Reports Over Time Chart
+      const timeCtx = document.getElementById('reportsOverTimeChart').getContext('2d');
+      window.reportsOverTimeChart = new Chart(timeCtx, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+          datasets: [{
+            label: 'Reports Submitted',
+            data: [85, 112, 98, 125, 143, 156, 132, 145, 168, 192, 210, 198],
+            borderColor: '#138E0B',
+            tension: 0.3,
+            fill: true,
+            backgroundColor: 'rgba(19, 142, 11, 0.1)'
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+      
+      // Resolution Rate Chart
+      const resolutionCtx = document.getElementById('resolutionRateChart').getContext('2d');
+      window.resolutionRateChart = new Chart(resolutionCtx, {
+        type: 'radar',
+        data: {
+          labels: ['Roads', 'Sanitation', 'Traffic', 'Utilities', 'Parks'],
+          datasets: [{
+            label: 'Resolution Rate (%)',
+            data: [82, 90, 75, 85, 68],
+            backgroundColor: 'rgba(19, 142, 11, 0.2)',
+            borderColor: '#138E0B',
+            pointBackgroundColor: '#138E0B'
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            r: {
+              beginAtZero: true,
+              max: 100
+            }
+          }
+        }
+      });
+    }
+
+    // Update top counters on dashboard - start with 0
+    function updateTopCounters() {
+      try { allReports = JSON.parse(localStorage.getItem('allReports')) || []; } catch(e){ allReports = []; }
+      const total = allReports.length;
+      const pending = allReports.filter(r => r.status === 'Submitted').length;
+      const inProg = allReports.filter(r => r.status === 'In Progress' || r.status === 'Assigned').length;
+      const resolved = allReports.filter(r => r.status === 'Resolved').length;
+      const t = document.getElementById('totalReports'); if (t) t.textContent = String(total);
+      const p = document.getElementById('pendingReview'); if (p) p.textContent = String(pending);
+      const ip = document.getElementById('inProgress'); if (ip) ip.textContent = String(inProg);
+      const r = document.getElementById('resolved'); if (r) r.textContent = String(resolved);
+    }
+
+    // Recompute issue type chart data from current reports
+    function updateIssueTypeChart() {
+      if (!window.issueTypeChart) return;
+      const categories = ['Roads','Sanitation','Traffic','Utilities','Parks','Other'];
+      const counts = categories.map(cat => allReports.filter(r => (r.category||'').toLowerCase().includes(cat.toLowerCase())).length);
+      window.issueTypeChart.data.datasets[0].data = counts;
+      window.issueTypeChart.update();
+      // Update department performance approximations if needed
+      try { updateDepartmentStats(); } catch(e){}
+    }
+
+    /***********************************************************
+     * Report Queue Management
+     ***********************************************************/
+    function loadQueueReports() {
+      const container = document.getElementById('queueReportsList');
+      container.innerHTML = '';
+      const adminDepartment = localStorage.getItem('adminDepartment');
+      
+      let queueReports = allReports.filter(report => report.status === 'Submitted');
+      
+      // For non-super admins, only show reports for their department
+      if (adminDepartment && adminDepartment !== 'Super Admin') {
+        queueReports = queueReports.filter(report => report.department === adminDepartment);
+      }
+      
+      if (queueReports.length === 0) {
+        container.innerHTML = '<p>No reports in the queue. All reports have been processed.</p>';
+        return;
+      }
+      
+      queueReports.forEach(report => {
+        const div = document.createElement('div');
+        div.className = 'report-item';
+        div.onclick = () => showReportDetailModal(report);
+        div.innerHTML = `
+          <div class="report-icon"><i class="fas ${iconForCategory(report.category)}"></i></div>
+          <div class="report-content">
+            <div class="report-title">${escapeHtml(report.title)} <span class="priority-badge priority-${report.priority}">${report.priority.charAt(0).toUpperCase() + report.priority.slice(1)}</span></div>
+            <div class="report-desc">${escapeHtml(report.description)}</div>
+            <div class="report-meta">
+              <span><i class="fas fa-map-marker-alt"></i> ${escapeHtml(report.locationText || 'Unknown')}</span>
+              <span><i class="far fa-clock"></i> ${escapeHtml(report.time)}</span>
+              <span><i class="fas fa-tag"></i> ${escapeHtml(report.category)}</span>
+            </div>
+            
+            <div class="ai-analysis">
+              <strong>AI Analysis:</strong> ${escapeHtml(report.aiAnalysis.summary)}
+            </div>
+          </div>
+          <div class="status-badge status-new">${escapeHtml(report.status)}</div>
+        `;
+        container.appendChild(div);
+      });
+    }
+    
+    function loadAllReports() {
+      // Always re-hydrate reports from localStorage so new user submissions appear after refresh
+      try { allReports = JSON.parse(localStorage.getItem('allReports')) || allReports; } catch(e){}
+      // Re-apply current filters
+      if (!filteredReports || filteredReports.length === 0 || filteredReports.length === allReports.length) {
+        filteredReports = [...allReports];
+      }
+      const container = document.getElementById('allReportsList');
+      container.innerHTML = '';
+      
+      if (filteredReports.length === 0) {
+        container.innerHTML = '<p>No reports match the selected filters.</p>';
+        return;
+      }
+      
+      filteredReports.forEach(report => {
+        const div = document.createElement('div');
+        div.className = 'report-item';
+        div.onclick = () => showReportDetailModal(report);
+        div.innerHTML = `
+          <div class="report-icon"><i class="fas ${iconForCategory(report.category)}"></i></div>
+          <div class="report-content">
+            <div class="report-title">${escapeHtml(report.title)} <span class="priority-badge priority-${report.priority}">${report.priority.charAt(0).toUpperCase() + report.priority.slice(1)}</span></div>
+            <div class="report-desc">${escapeHtml(report.description)}</div>
+            <div class="report-meta">
+              <span><i class="fas fa-map-marker-alt"></i> ${escapeHtml(report.locationText || 'Unknown')}</span>
+              <span><i class="far fa-clock"></i> ${escapeHtml(report.time)}</span>
+              <span><i class="fas fa-tag"></i> ${escapeHtml(report.category)}</span>
+              ${report.department ? `<span class="department-badge">${escapeHtml(report.department)}</span>` : ''}
+            </div>
+          </div>
+          <div class="status-badge status-${report.status.toLowerCase().replace(' ', '-')}">${escapeHtml(report.status)}</div>
+        `;
+        container.appendChild(div);
+      });
+    }
+    
+    function loadRecentReports() {
+      const container = document.getElementById('recentReportsList');
+      container.innerHTML = '';
+      const adminDepartment = localStorage.getItem('adminDepartment');
+      
+      // Show only recent reports (limit to 5)
+      let recentReports = allReports.slice(0, 5);
+      
+      // For non-super admins, only show reports for their department
+      if (adminDepartment && adminDepartment !== 'Super Admin') {
+        recentReports = recentReports.filter(report => report.department === adminDepartment);
+      }
+      
+      if (recentReports.length === 0) {
+        container.innerHTML = '<p>No reports found.</p>';
+        return;
+      }
+      
+      recentReports.forEach(report => {
+        const div = document.createElement('div');
+        div.className = 'report-item';
+        div.onclick = () => showReportDetailModal(report);
+        div.innerHTML = `
+          <div class="report-icon"><i class="fas ${iconForCategory(report.category)}"></i></div>
+          <div class="report-content">
+            <div class="report-title">${escapeHtml(report.title)} <span class="priority-badge priority-${report.priority}">${report.priority.charAt(0).toUpperCase() + report.priority.slice(1)}</span></div>
+            <div class="report-desc">${escapeHtml(report.description)}</div>
+            <div class="report-meta">
+              <span><i class="fas fa-map-marker-alt"></i> ${escapeHtml(report.locationText || 'Unknown')}</span>
+              <span><i class="far fa-clock"></i> ${escapeHtml(report.time)}</span>
+              <span><i class="fas fa-tag"></i> ${escapeHtml(report.category)}</span>
+              ${report.department ? `<span class="department-badge">${escapeHtml(report.department)}</span>` : ''}
+            </div>
+          </div>
+          <div class="status-badge status-${report.status.toLowerCase().replace(' ', '-')}">${escapeHtml(report.status)}</div>
+        `;
+        container.appendChild(div);
+      });
+    }
+    
+    function applyFilters() {
+      const category = document.getElementById('categoryFilter').value;
+      const priority = document.getElementById('priorityFilter').value;
+      const date = document.getElementById('dateFilter').value;
+      
+      filteredReports = allReports.filter(report => {
+        if (category !== 'all' && report.category.toLowerCase() !== category) return false;
+        if (priority !== 'all' && report.priority !== priority) return false;
+        // Date filtering would be more complex in a real app
+        return true;
+      });
+      
+      loadQueueReports();
+    }
+    
+    function applyReportFilters() {
+      const status = document.getElementById('reportStatusFilter').value;
+      const department = document.getElementById('reportDepartmentFilter').value;
+      const adminDepartment = localStorage.getItem('adminDepartment');
+      
+      filteredReports = allReports.filter(report => {
+        if (status !== 'all') {
+          const reportStatus = report.status.toLowerCase().replace(' ', '-');
+          if (reportStatus !== status) return false;
+        }
+        
+        if (department !== 'all') {
+          if (report.department !== department) return false;
+        }
+        
+        // For non-super admins, only show reports for their department
+        if (adminDepartment && adminDepartment !== 'Super Admin') {
+          if (report.department !== adminDepartment) return false;
+        }
+        
+        return true;
+      });
+      
+      loadAllReports();
+    }
+    
+    function updateMapView() {
+      const status = document.getElementById('mapStatusFilter').value;
+      const category = document.getElementById('mapCategoryFilter').value;
+      const adminDepartment = localStorage.getItem('adminDepartment');
+      
+      // Clear existing markers
+      mapViewMap.eachLayer(layer => {
+        if (layer instanceof L.Marker) {
+          mapViewMap.removeLayer(layer);
+        }
+      });
+      
+      // Add filtered markers
+      allReports.forEach(report => {
+        if (status !== 'all') {
+          const reportStatus = report.status.toLowerCase().replace(' ', '-');
+          if (reportStatus !== status) return;
+        }
+        
+        if (category !== 'all' && report.category.toLowerCase() !== category) return;
+        
+        // For non-super admins, only show reports for their department
+        if (adminDepartment && adminDepartment !== 'Super Admin') {
+          if (report.department !== adminDepartment) return;
+        }
+        
+        if (report.lat && report.lon) {
+          const iconColor = getStatusColor(report.status);
+          const icon = L.divIcon({
+            className: 'custom-marker',
+            html: `<div style="background-color: ${iconColor}; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`,
+            iconSize: [26, 26],
+            iconAnchor: [13, 13]
+          });
+          
+          const popupContent = `
+            <div style="min-width: 200px;">
+              <strong>${escapeHtml(report.title)}</strong><br/>
+              <small>${escapeHtml(report.locationText || 'Location not specified')}</small><br/>
+              <span class="status-badge status-${report.status.toLowerCase().replace(' ', '-')}">${report.status}</span><br/>
+              <small>Category: ${escapeHtml(report.category)}</small><br/>
+              ${report.department ? `<small>Department: ${escapeHtml(report.department)}</small>` : ''}
+            </div>
+          `;
+          
+          L.marker([report.lat, report.lon], {icon: icon}).addTo(mapViewMap)
+            .bindPopup(popupContent);
+        }
+      });
+      
+      // Fit map to show all markers
+      if (allReports.length > 0) {
+        const group = new L.featureGroup();
+        mapViewMap.eachLayer(layer => {
+          if (layer instanceof L.Marker) {
+            group.addLayer(layer);
+          }
+        });
+        if (group.getLayers().length > 0) {
+          mapViewMap.fitBounds(group.getBounds().pad(0.1));
+        }
+      }
+    }
+
+    /***********************************************************
+     * Report Detail Modal
+     ***********************************************************/
+    function showReportDetailModal(report) {
+      currentReport = report;
+      
+      // Populate detail view with report data
+      document.getElementById('detailTitle').textContent = report.title;
+      document.getElementById('detailDescription').textContent = report.description;
+      document.getElementById('detailCategory').textContent = report.category;
+      document.getElementById('detailLocation').textContent = report.locationText;
+      document.getElementById('detailTime').textContent = report.time;
+      document.getElementById('detailDepartment').textContent = report.department || 'Not assigned';
+      document.getElementById('detailId').textContent = report.id;
+      
+      // Set appropriate icon
+      const iconElement = document.getElementById('detailIcon');
+      iconElement.className = 'fas ' + iconForCategory(report.category);
+      
+      // Set status badge
+      const statusElement = document.getElementById('detailStatus');
+      statusElement.textContent = report.status;
+      statusElement.className = 'status-badge ';
+      if (report.status === 'Submitted') statusElement.className += 'status-new';
+      else if (report.status === 'In Progress') statusElement.className += 'status-progress';
+      else if (report.status === 'Resolved') statusElement.className += 'status-resolved';
+      else if (report.status === 'Rejected') statusElement.className += 'status-cancelled';
+      else statusElement.className += 'status-new';
+      
+      // Set priority badge
+      const priorityElement = document.getElementById('detailPriority');
+      priorityElement.textContent = report.priority.charAt(0).toUpperCase() + report.priority.slice(1) + ' Priority';
+      priorityElement.className = 'priority-badge priority-' + report.priority;
+      
+      // AI Analysis
+      const aiTagsElement = document.getElementById('aiTags');
+      aiTagsElement.innerHTML = '';
+      report.aiAnalysis.tags.forEach(tag => {
+        const span = document.createElement('span');
+        span.className = 'ai-tag';
+        span.textContent = tag;
+        aiTagsElement.appendChild(span);
+      });
+      
+      document.getElementById('aiSummary').textContent = report.aiAnalysis.summary;
+      
+      // Update map location
+      if (report.lat && report.lon) {
+        detailMap.setView([report.lat, report.lon], 15);
+        // Clear existing markers
+        detailMap.eachLayer(layer => {
+          if (layer instanceof L.Marker) {
+            detailMap.removeLayer(layer);
+          }
+        });
+        // Add new marker
+        L.marker([report.lat, report.lon]).addTo(detailMap)
+          .bindPopup(`<strong>${escapeHtml(report.title)}</strong><br/>${escapeHtml(report.locationText)}`)
+          .openPopup();
+      }
+      
+      // Set department assignment dropdown
+      const deptSelect = document.getElementById('assignDepartment');
+      deptSelect.value = report.department || '';
+      
+      // Display uploaded image
+      const detailImage = document.getElementById('detailImage');
+      const noImageMessage = document.getElementById('noImageMessage');
+      
+      if (report.image) {
+        detailImage.src = report.image;
+        detailImage.style.display = 'block';
+        noImageMessage.style.display = 'none';
+      } else {
+        detailImage.style.display = 'none';
+        noImageMessage.style.display = 'block';
+      }
+      
+      // Populate updates
+      const updatesContainer = document.getElementById('detailUpdates');
+      updatesContainer.innerHTML = '';
+      
+      if (report.updates && report.updates.length > 0) {
+        report.updates.forEach(update => {
+          const updateDiv = document.createElement('div');
+          updateDiv.style.display = 'flex';
+          updateDiv.style.gap = '10px';
+          updateDiv.style.marginBottom = '15px';
+          
+          let icon = 'fa-check';
+          let color = 'var(--primary)';
+          
+          if (update.type === 'assigned') {
+            icon = 'fa-user-cog';
+            color = 'var(--secondary)';
+          } else if (update.type === 'resolved') {
+            icon = 'fa-check-circle';
+            color = '#2ecc71';
+          }
+          
+          updateDiv.innerHTML = `
+            <div style="width:40px;height:40px;background:var(--light-gray);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+              <i class="fas ${icon}" style="color:${color};"></i>
+            </div>
+            <div>
+              <strong>${escapeHtml(update.text)}</strong>
+              <p style="font-size:0.9rem;color:var(--gray);margin:0;">${escapeHtml(update.time)}</p>
+            </div>
+          `;
+          updatesContainer.appendChild(updateDiv);
+        });
+      }
+      
+      // Show the detail modal
+      document.getElementById('reportDetailModal').style.display = 'flex';
+    }
+    
+    function assignDepartment() {
+      const deptSelect = document.getElementById('assignDepartment');
+      const department = deptSelect.options[deptSelect.selectedIndex].text;
+      const deadlineInput = document.getElementById('assignDeadline');
+      const rawDeadline = (deadlineInput && deadlineInput.value) ? deadlineInput.value : null;
+      // Default deadline in 7 days if not provided
+      const deadlineISO = rawDeadline ? new Date(rawDeadline + 'T23:59:59').toISOString() : new Date(Date.now() + 7*24*60*60*1000).toISOString();
+      
+      if (!department || department === 'Select Department') {
+        showNotification('Please select a department', 'error');
+        return;
+      }
+      
+      // Update the report
+      const reportIndex = allReports.findIndex(r => r.id === currentReport.id);
+      if (reportIndex !== -1) {
+        allReports[reportIndex].department = department;
+        allReports[reportIndex].status = 'In Progress';
+        allReports[reportIndex].deadline = deadlineISO;
+        allReports[reportIndex].assignedAt = new Date().toISOString();
+        allReports[reportIndex].overdueNotified = false;
+        
+        // Add update
+        allReports[reportIndex].updates.push({
+          type: 'assigned',
+          text: `Assigned to ${department}`,
+          time: 'Just now'
+        });
+        allReports[reportIndex].updates.push({
+          type: 'deadline',
+          text: `Deadline set to ${new Date(deadlineISO).toLocaleDateString()}`,
+          time: 'Just now'
+        });
+        
+        // Save to localStorage
+        localStorage.setItem('allReports', JSON.stringify(allReports));
+        // Update dashboard stats and charts
+        try { updateTopCounters(); } catch(e){}
+        try { updateIssueTypeChart(); } catch(e){}
+        
+        // Sync update back to user dashboard
+        syncReportUpdateToUserDashboard(currentReport.id, 'In Progress', `Assigned to ${department}`);
+        
+        // Create citizen notification with better descriptions
+        createCitizenNotification(currentReport.id, `✅ Your report "${currentReport.title}" has been assigned to ${department} for resolution.
+
+Department: ${department}
+Expected Completion: ${new Date(deadlineISO).toLocaleDateString()}
+Priority: ${currentReport.priority || 'Medium'}
+
+The assigned department will now work on resolving your issue. You will receive regular updates on the progress. Thank you for your patience!`, 'assigned');
+        
+        createCitizenNotification(currentReport.id, `📅 DEADLINE SET: Your issue "${currentReport.title}" has a target completion date of ${new Date(deadlineISO).toLocaleDateString()}.
+
+The ${department} team is committed to resolving your issue by this date. If there are any delays, you will be notified immediately. We appreciate your understanding and cooperation.`, 'deadline');
+      }
+      
+      showNotification(`Report assigned to ${department}`);
+      
+      // Update UI
+      document.getElementById('detailDepartment').textContent = department;
+      document.getElementById('detailStatus').textContent = 'In Progress';
+      document.getElementById('detailStatus').className = 'status-badge status-progress';
+      if (deadlineInput) deadlineInput.value = '';
+      
+      // Add to updates
+      const updatesList = document.getElementById('detailUpdates');
+      const updateDiv = document.createElement('div');
+      updateDiv.style.display = 'flex';
+      updateDiv.style.gap = '10px';
+      updateDiv.style.marginBottom = '15px';
+      updateDiv.innerHTML = `
+        <div style="width:40px;height:40px;background:var(--light-gray);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+          <i class="fas fa-user-check" style="color:var(--secondary);"></i>
+        </div>
+        <div>
+          <strong>Assigned to ${department}</strong>
+          <p style="font-size:0.9rem;color:var(--gray);margin:0;">Just now</p>
+        </div>
+      `;
+      updatesList.appendChild(updateDiv);
+      const deadlineDiv = document.createElement('div');
+      deadlineDiv.style.display = 'flex';
+      deadlineDiv.style.gap = '10px';
+      deadlineDiv.style.marginBottom = '15px';
+      deadlineDiv.innerHTML = `
+        <div style="width:40px;height:40px;background:var(--light-gray);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+          <i class="fas fa-hourglass-half" style="color:#f39c12;"></i>
+        </div>
+        <div>
+          <strong>Deadline: ${new Date(deadlineISO).toLocaleDateString()}</strong>
+          <p style="font-size:0.9rem;color:var(--gray);margin:0;">Just now</p>
+        </div>
+      `;
+      updatesList.appendChild(deadlineDiv);
+      
+      // Close modal after a delay
+      setTimeout(() => {
+        closeModal('reportDetailModal');
+        loadQueueReports();
+        loadAllReports();
+        loadRecentReports();
+      }, 1500);
+    }
+    
+    function resolveIssue() {
+      // Update the report
+      const reportIndex = allReports.findIndex(r => r.id === currentReport.id);
+      if (reportIndex !== -1) {
+        allReports[reportIndex].status = 'Resolved';
+        
+        // Add update
+        allReports[reportIndex].updates.push({
+          type: 'resolved',
+          text: 'Issue marked as resolved',
+          time: 'Just now'
+        });
+        
+        // Save to localStorage
+        localStorage.setItem('allReports', JSON.stringify(allReports));
+        // Update dashboard stats and charts
+        try { updateTopCounters(); } catch(e){}
+        try { updateIssueTypeChart(); } catch(e){}
+        
+        // Sync update back to user dashboard
+        syncReportUpdateToUserDashboard(currentReport.id, 'Resolved', 'Issue marked as resolved');
+        
+        // Create citizen notification with better description
+        createCitizenNotification(currentReport.id, `🎉 ISSUE RESOLVED! Your report "${currentReport.title}" has been successfully resolved.
+
+Resolution Details:
+• Issue: ${currentReport.title}
+• Department: ${currentReport.department || 'Not specified'}
+• Status: Completed
+• Resolution Date: ${new Date().toLocaleDateString()}
+
+Thank you for reporting this issue and helping us improve our community. Your feedback is valuable in making our city a better place to live. If you have any concerns about the resolution, please don't hesitate to contact us.`, 'resolved');
+      }
+      
+      showNotification('Issue marked as resolved');
+      
+      // Update UI
+      document.getElementById('detailStatus').textContent = 'Resolved';
+      document.getElementById('detailStatus').className = 'status-badge status-resolved';
+      
+      // Add to updates
+      const updatesList = document.getElementById('detailUpdates');
+      const updateDiv = document.createElement('div');
+      updateDiv.style.display = 'flex';
+      updateDiv.style.gap = '10px';
+      updateDiv.style.marginBottom = '15px';
+      updateDiv.innerHTML = `
+        <div style="width:40px;height:40px;background:var(--light-gray);border-radius:50%;display:flex;align-items:center;justify-content:center;">
+          <i class="fas fa-check" style="color:#2ecc71;"></i>
+        </div>
+        <div>
+          <strong>Issue marked as resolved</strong>
+          <p style="font-size:0.9rem;color:var(--gray);margin:0;">Just now</p>
+        </div>
+      `;
+      updatesList.appendChild(updateDiv);
+      
+      // Close modal after a delay
+      setTimeout(() => {
+        closeModal('reportDetailModal');
+        loadQueueReports();
+        loadAllReports();
+        loadRecentReports();
+      }, 1500);
+    }
+    
+    function rejectIssue() {
+      if (!confirm('Are you sure you want to reject this report? This action cannot be undone.')) {
+        return;
+      }
+      
+      // Update the report
+      const reportIndex = allReports.findIndex(r => r.id === currentReport.id);
+      if (reportIndex !== -1) {
+        allReports[reportIndex].status = 'Rejected';
+        
+        // Add update
+        allReports[reportIndex].updates.push({
+          type: 'rejected',
+          text: 'Report rejected by administrator',
+          time: 'Just now'
+        });
+        
+        // Save to localStorage
+        localStorage.setItem('allReports', JSON.stringify(allReports));
+        
+        // Create citizen notification
+        createCitizenNotification(currentReport.id, 'Your report has been reviewed and rejected');
+      }
+      
+      showNotification('Report rejected');
+      
+      // Close modal
+      closeModal('reportDetailModal');
+      
+      // Remove from lists
+      // Keep the report but mark as Rejected so it appears in cancelled state
+      try {
+        const idx = allReports.findIndex(r => r.id === currentReport.id);
+        if (idx !== -1) {
+          allReports[idx].status = 'Rejected';
+          allReports[idx].updates = allReports[idx].updates || [];
+          allReports[idx].updates.push({ type: 'rejected', text: 'Report rejected by administrator', time: 'Just now' });
+          localStorage.setItem('allReports', JSON.stringify(allReports));
+        }
+      } catch(e){}
+      
+      loadQueueReports();
+      loadAllReports();
+      loadRecentReports();
+      try { updateTopCounters(); } catch(e){}
+    }
+
+    // Cancel process without rejecting the report (keeps for audit but shows as Cancelled)
+    function cancelIssue() {
+      if (!confirm('Cancel the processing of this report? It will be shown as Cancelled to both admin and user.')) {
+        return;
+      }
+      const reportIndex = allReports.findIndex(r => r.id === currentReport.id);
+      if (reportIndex !== -1) {
+        allReports[reportIndex].status = 'Cancelled';
+        allReports[reportIndex].updates = allReports[reportIndex].updates || [];
+        allReports[reportIndex].updates.push({ type: 'cancelled', text: 'Processing cancelled by administrator', time: 'Just now' });
+        localStorage.setItem('allReports', JSON.stringify(allReports));
+        // Notify user
+        createCitizenNotification(currentReport.id, 'Update: Your report processing has been cancelled by the administrator. If this is unexpected, please resubmit or contact support.', 'cancelled');
+        // Sync to citizen copy
+        syncReportUpdateToUserDashboard(currentReport.id, 'Cancelled', 'Processing cancelled by administrator');
+      }
+      showNotification('Report marked as cancelled');
+      closeModal('reportDetailModal');
+      loadQueueReports();
+      loadAllReports();
+      loadRecentReports();
+      try { updateTopCounters(); } catch(e){}
+    }
+    
+    function createCitizenNotification(reportId, message, type = 'general') {
+      // In a real application, this would be a server API call
+      let citizenNotifications = JSON.parse(localStorage.getItem('citizenNotifications')) || [];
+      
+      const notification = {
+        id: 'notif_' + Date.now(),
+        reportId: reportId,
+        message: message,
+        type: type,
+        time: new Date().toISOString(),
+        read: false,
+        priority: type === 'resolved' ? 'high' : type === 'assigned' ? 'medium' : 'low'
+      };
+      
+      citizenNotifications.push(notification);
+      localStorage.setItem('citizenNotifications', JSON.stringify(citizenNotifications));
+    }
+    
+    function syncReportUpdateToUserDashboard(reportId, newStatus, updateText) {
+      try {
+        // Get user dashboard reports
+        let userReports = JSON.parse(localStorage.getItem('civicConnectReports') || '[]');
+        
+        // Find the report in user dashboard
+        const reportIndex = userReports.findIndex(report => report.id === reportId);
+        
+        if (reportIndex !== -1) {
+          // Update the status
+          userReports[reportIndex].status = newStatus;
+          
+          // Add update to the report
+          if (!userReports[reportIndex].updates) {
+            userReports[reportIndex].updates = [];
+          }
+          
+          userReports[reportIndex].updates.push({
+            type: newStatus.toLowerCase().replace(' ', '_'),
+            text: updateText,
+            time: 'Just now'
+          });
+          
+          // Save back to user dashboard storage
+          localStorage.setItem('civicConnectReports', JSON.stringify(userReports));
+          
+          console.log('Report status synced to user dashboard:', reportId, newStatus);
+        }
+      } catch (e) {
+        console.error('Error syncing report update to user dashboard:', e);
+      }
+    }
+
+    /***********************************************************
+     * Messaging System
+     ***********************************************************/
+    function loadMessages() {
+      const container = document.getElementById('messagesList');
+      container.innerHTML = '';
+      
+      // Load department notifications
+      let departmentNotifications = JSON.parse(localStorage.getItem('departmentNotifications')) || [];
+      let adminNotifications = JSON.parse(localStorage.getItem('adminNotifications')) || [];
+      const adminDepartment = localStorage.getItem('adminDepartment');
+      
+      // Combine messages and filter by department for non-super admins
+      let combined = [...departmentNotifications, ...adminNotifications];
+      if (adminDepartment && adminDepartment !== 'Super Admin') {
+        combined = combined.filter(msg => msg.department === adminDepartment);
+      }
+      
+      // Sort by timestamp
+      const allMessages = combined.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      
+      if (allMessages.length === 0) {
+        container.innerHTML = '<p>No messages found.</p>';
+        return;
+      }
+      
+      allMessages.forEach(message => {
+        const div = document.createElement('div');
+        div.className = 'report-item';
+        div.style.alignItems = 'flex-start';
+        div.onclick = () => openMessageView(message);
+        
+        const priorityClass = message.priority || 'medium';
+        const statusClass = message.read ? 'read' : 'new';
+        
+        div.innerHTML = `
+          <div class="report-icon"><i class="fas fa-envelope${message.read ? '-open' : ''}"></i></div>
+          <div class="report-content">
+            <div class="report-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <span style="flex:1;min-width:200px;">${escapeHtml(message.title || message.message)}</span>
+              <span class="priority-badge priority-${priorityClass}">${priorityClass.charAt(0).toUpperCase() + priorityClass.slice(1)}</span>
+            </div>
+            <div class="report-desc" style="white-space:pre-line;">${escapeHtml(message.message)}</div>
+            <div class="report-meta" style="display:flex;gap:12px;flex-wrap:wrap;">
+              <span><i class="fas fa-building"></i> ${escapeHtml(message.department)}</span>
+              <span><i class="far fa-clock"></i> ${formatTimeAgo(message.timestamp)}</span>
+              <span><i class="fas fa-tag"></i> ${escapeHtml(message.category || 'General')}</span>
+            </div>
+          </div>
+          <div class="status-badge status-${statusClass}">${message.read ? 'Read' : 'New'}</div>
+        `;
+        
+        container.appendChild(div);
+      });
+    }
+    
+    function showSendMessageModal() {
+      const adminDepartment = localStorage.getItem('adminDepartment');
+      const messageToDepartment = document.getElementById('messageToDepartment');
+      
+      // For non-super admins, only allow sending to their own department
+      if (adminDepartment && adminDepartment !== 'Super Admin') {
+        messageToDepartment.value = adminDepartment;
+        messageToDepartment.disabled = true;
+        messageToDepartment.style.opacity = '0.6';
+      } else {
+        messageToDepartment.disabled = false;
+        messageToDepartment.style.opacity = '1';
+      }
+      
+      document.getElementById('sendMessageModal').style.display = 'flex';
+    }
+    
+    function sendMessage() {
+      const toDepartment = document.getElementById('messageToDepartment').value;
+      const subject = document.getElementById('messageSubject').value.trim();
+      const content = document.getElementById('messageContent').value.trim();
+      const priority = document.getElementById('messagePriority').value;
+      
+      if (!toDepartment || !subject || !content) {
+        showNotification('Please fill in all fields!', 'error');
+        return;
+      }
+      
+      // Create message
+      const message = {
+        id: 'msg_' + Date.now(),
+        toDepartment: toDepartment,
+        subject: subject,
+        content: content,
+        priority: priority,
+        fromAdmin: localStorage.getItem('adminEmail') || 'admin@civicconnect.gov.in',
+        timestamp: new Date().toISOString(),
+        read: false,
+        status: 'sent'
+      };
+      
+      // Save to department notifications
+      let departmentNotifications = JSON.parse(localStorage.getItem('departmentNotifications')) || [];
+      departmentNotifications.push({
+        id: message.id,
+        department: toDepartment,
+        title: subject,
+        message: content,
+        priority: priority,
+        timestamp: message.timestamp,
+        read: false,
+        status: 'new',
+        type: 'admin_message'
+      });
+      localStorage.setItem('departmentNotifications', JSON.stringify(departmentNotifications));
+      
+      showNotification('Message sent successfully!');
+      closeModal('sendMessageModal');
+      
+      // Clear form
+      document.getElementById('messageToDepartment').value = '';
+      document.getElementById('messageSubject').value = '';
+      document.getElementById('messageContent').value = '';
+      document.getElementById('messagePriority').value = 'medium';
+      
+      // Reload messages if on messages page
+      if (document.getElementById('messages').classList.contains('active')) {
+        loadMessages();
+      }
+    }
+    
+    function markMessageAsRead(messageId) {
+      let departmentNotifications = JSON.parse(localStorage.getItem('departmentNotifications')) || [];
+      let adminNotifications = JSON.parse(localStorage.getItem('adminNotifications')) || [];
+      
+      // Mark in department notifications
+      departmentNotifications.forEach(notif => {
+        if (notif.id === messageId) {
+          notif.read = true;
+        }
+      });
+      
+      // Mark in admin notifications
+      adminNotifications.forEach(notif => {
+        if (notif.id === messageId) {
+          notif.read = true;
+        }
+      });
+      
+      localStorage.setItem('departmentNotifications', JSON.stringify(departmentNotifications));
+      localStorage.setItem('adminNotifications', JSON.stringify(adminNotifications));
+      
+      // Reload messages
+      loadMessages();
+    }
+
+    // Open message in a modal and mark as read
+    function openMessageView(message){
+      try {
+        // mark as read
+        markMessageAsRead(message.id);
+      } catch(e){}
+      // fill modal
+      const t = document.getElementById('vmTitle'); if (t) t.textContent = message.title || 'Message';
+      const d = document.getElementById('vmDept'); if (d) d.textContent = message.department ? ('Department: ' + message.department) : '';
+      const m = document.getElementById('vmMessage'); if (m) m.textContent = message.message || '';
+      const det = document.getElementById('vmDetails'); if (det) det.textContent = message.detailedMessage || '';
+      const tm = document.getElementById('vmTime'); if (tm) tm.textContent = formatTimeAgo(message.timestamp);
+      const cat = document.getElementById('vmCategory'); if (cat) cat.textContent = message.category || 'General';
+      const pr = document.getElementById('vmPriority'); if (pr) pr.className = 'priority-badge priority-' + (message.priority || 'medium');
+      const modal = document.getElementById('viewMessageModal'); if (modal) modal.style.display = 'flex';
+    }
+    
+    function markAllAsRead() {
+      let departmentNotifications = JSON.parse(localStorage.getItem('departmentNotifications')) || [];
+      let adminNotifications = JSON.parse(localStorage.getItem('adminNotifications')) || [];
+      
+      departmentNotifications.forEach(notif => notif.read = true);
+      adminNotifications.forEach(notif => notif.read = true);
+      
+      localStorage.setItem('departmentNotifications', JSON.stringify(departmentNotifications));
+      localStorage.setItem('adminNotifications', JSON.stringify(adminNotifications));
+      
+      showNotification('All messages marked as read');
+      loadMessages();
+    }
+    
+    function applyMessageFilters() {
+      // This would filter messages based on selected criteria
+      loadMessages();
+    }
+    
+    function formatTimeAgo(timestamp) {
+      const now = new Date();
+      const time = new Date(timestamp);
+      const diffInSeconds = Math.floor((now - time) / 1000);
+      
+      if (diffInSeconds < 60) return 'Just now';
+      if (diffInSeconds < 3600) return Math.floor(diffInSeconds / 60) + ' minutes ago';
+      if (diffInSeconds < 86400) return Math.floor(diffInSeconds / 3600) + ' hours ago';
+      return Math.floor(diffInSeconds / 86400) + ' days ago';
+    }
+    
+    // Toggle admin notification dropdown
+    function toggleAdminNotifications() {
+      const dropdown = document.getElementById('adminNotificationDropdown');
+      if (dropdown) {
+        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        loadAdminNotifications(); // Refresh notifications when opened
+      }
+    }
+    
+    // Load admin notifications
+    function loadAdminNotifications() {
+      const adminDepartment = localStorage.getItem('adminDepartment');
+      const notificationList = document.getElementById('adminNotificationList');
+      const badge = document.getElementById('notificationBadge');
+      
+      // Load department notifications
+      let departmentNotifications = JSON.parse(localStorage.getItem('departmentNotifications') || '[]');
+      let adminNotifications = JSON.parse(localStorage.getItem('adminNotifications') || '[]');
+      
+      // Filter notifications based on admin department
+      let relevantNotifications = [];
+      
+      if (adminDepartment === 'Super Admin') {
+        // Super admin sees all notifications
+        relevantNotifications = [...departmentNotifications, ...adminNotifications];
+      } else {
+        // Department admin only sees notifications for their department
+        relevantNotifications = departmentNotifications.filter(notif => notif.department === adminDepartment);
+      }
+      
+      // Sort by timestamp (newest first)
+      relevantNotifications.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      
+      // Update badge
+      const unreadCount = relevantNotifications.filter(n => !n.read).length;
+      if (badge) {
+        badge.textContent = unreadCount;
+        badge.style.display = unreadCount > 0 ? 'flex' : 'none';
+      }
+      
+      // Update notification list
+      if (notificationList) {
+        if (relevantNotifications.length === 0) {
+          notificationList.innerHTML = '<div style="padding:20px;text-align:center;color:var(--gray);">No notifications yet</div>';
+        } else {
+          notificationList.innerHTML = relevantNotifications.map(notification => {
+            const typeIcon = getAdminNotificationIcon(notification.type);
+            const typeColor = getAdminNotificationColor(notification.type);
+            
+            return `
+              <div class="notification-item ${notification.read ? 'read' : 'unread'}" onclick="markAdminNotificationRead('${notification.id}')" style="padding:15px;border-bottom:1px solid #eee;cursor:pointer;transition:background 0.2s;border-left:4px solid ${typeColor};">
+                <div style="display:flex;align-items:flex-start;gap:10px;">
+                  <div style="width:8px;height:8px;background:${notification.read ? 'transparent' : typeColor};border-radius:50%;margin-top:6px;flex-shrink:0;"></div>
+                  <div style="flex:1;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+                      <span style="font-size:1.2rem;">${typeIcon}</span>
+                      <div style="font-weight:600;color:var(--dark);flex:1;">${escapeHtml(notification.message)}</div>
+                    </div>
+                    <div style="font-size:0.8rem;color:var(--gray);">${formatTimeAgo(notification.timestamp)}</div>
+                    ${notification.detailedMessage ? `<div style="font-size:0.8rem;color:var(--gray);margin-top:5px;white-space:pre-line;">${escapeHtml(notification.detailedMessage)}</div>` : ''}
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+    }
+    
+    // Mark admin notification as read
+    function markAdminNotificationRead(notificationId) {
+      try {
+        let departmentNotifications = JSON.parse(localStorage.getItem('departmentNotifications') || '[]');
+        let adminNotifications = JSON.parse(localStorage.getItem('adminNotifications') || '[]');
+        
+        // Mark in department notifications
+        departmentNotifications.forEach(notif => {
+          if (notif.id === notificationId) {
+            notif.read = true;
+          }
+        });
+        
+        // Mark in admin notifications
+        adminNotifications.forEach(notif => {
+          if (notif.id === notificationId) {
+            notif.read = true;
+          }
+        });
+        
+        localStorage.setItem('departmentNotifications', JSON.stringify(departmentNotifications));
+        localStorage.setItem('adminNotifications', JSON.stringify(adminNotifications));
+        
+        // Refresh the display
+        loadAdminNotifications();
+      } catch (e) {
+        console.error('Error marking admin notification as read:', e);
+      }
+    }
+    
+    // Mark all admin notifications as read
+    function markAllAdminNotificationsRead() {
+      try {
+        const adminDepartment = localStorage.getItem('adminDepartment');
+        let departmentNotifications = JSON.parse(localStorage.getItem('departmentNotifications') || '[]');
+        let adminNotifications = JSON.parse(localStorage.getItem('adminNotifications') || '[]');
+        
+        if (adminDepartment === 'Super Admin') {
+          // Super admin marks all notifications as read
+          departmentNotifications.forEach(notif => notif.read = true);
+          adminNotifications.forEach(notif => notif.read = true);
+        } else {
+          // Department admin marks only their department notifications as read
+          departmentNotifications.forEach(notif => {
+            if (notif.department === adminDepartment) {
+              notif.read = true;
+            }
+          });
+        }
+        
+        localStorage.setItem('departmentNotifications', JSON.stringify(departmentNotifications));
+        localStorage.setItem('adminNotifications', JSON.stringify(adminNotifications));
+        
+        showNotification('All notifications marked as read');
+        loadAdminNotifications();
+      } catch (e) {
+        console.error('Error marking all admin notifications as read:', e);
+      }
+    }
+    
+    // Get admin notification icon based on type
+    function getAdminNotificationIcon(type) {
+      switch (type) {
+        case 'new_assignment': return '🚨';
+        case 'new_report': return '📋';
+        case 'assignment': return '👥';
+        case 'resolution': return '✅';
+        case 'deadline': return '📅';
+        default: return '🔔';
+      }
+    }
+    
+    // Get admin notification color based on type
+    function getAdminNotificationColor(type) {
+      switch (type) {
+        case 'new_assignment': return '#e74c3c';
+        case 'new_report': return '#3498db';
+        case 'assignment': return '#f39c12';
+        case 'resolution': return '#2ecc71';
+        case 'deadline': return '#9b59b6';
+        default: return '#95a5a6';
+      }
+    }
+
+    /***********************************************************
+     * Utility Functions
+     ***********************************************************/
+    function escapeHtml(s){ return (s+'').replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+    
+    function iconForCategory(cat){
+      if(!cat) return 'fa-exclamation-circle';
+      const c = cat.toLowerCase();
+      if (c.includes('road')) return 'fa-road';
+      if (c.includes('sanitat') || c.includes('trash')) return 'fa-trash';
+      if (c.includes('traffic')) return 'fa-traffic-light';
+      if (c.includes('park')) return 'fa-tree';
+      if (c.includes('utility') || c.includes('bolt')) return 'fa-bolt';
+      return 'fa-exclamation-circle';
+    }
+
+    // Departments storage helpers
+    function getDepartments(){ try{return JSON.parse(localStorage.getItem('departments')||'[]')}catch(e){return[]} }
+    function setDepartments(list){ localStorage.setItem('departments', JSON.stringify(list)); }
+    let editingDeptIndex = -1;
+    function openDeptModal(idx){
+      editingDeptIndex = typeof idx === 'number' ? idx : -1;
+      const title = document.getElementById('deptModalTitle');
+      const list = getDepartments();
+      if (editingDeptIndex > -1){
+        const d = list[editingDeptIndex];
+        title.textContent = 'Edit Department';
+        document.getElementById('deptName').value = d.name || '';
+        document.getElementById('deptIcon').value = d.icon || '';
+        document.getElementById('deptDistrict').value = d.district || '';
+      } else {
+        title.textContent = 'Add Department';
+        document.getElementById('deptName').value = '';
+        document.getElementById('deptIcon').value = '';
+        document.getElementById('deptDistrict').value = '';
+      }
+      document.getElementById('deptModal').style.display = 'flex';
+    }
+    function openDeptSettings(){ openDeptModal(); }
+    function saveDepartment(){
+      const name = document.getElementById('deptName').value.trim();
+      const icon = document.getElementById('deptIcon').value.trim();
+      const district = document.getElementById('deptDistrict').value.trim();
+      if (!name){ showNotification('Please enter department name','error'); return; }
+      const list = getDepartments();
+      const record = { name, icon, district };
+      if (editingDeptIndex > -1) list[editingDeptIndex] = { ...list[editingDeptIndex], ...record };
+      else list.push(record);
+      setDepartments(list);
+      showNotification('Department saved');
+      closeModal('deptModal');
+      try{ renderDeptPerformance(); }catch(e){}
+    }
+
+    // Department Details Functions
+    function toggleDepartmentDetails(deptType) {
+      const container = document.getElementById('departmentDetailsContainer');
+      const departmentName = document.getElementById('selectedDepartmentName');
+      
+      // Department names mapping
+      const deptNames = {
+        'public-works': 'Public Works Department',
+        'water-supply': 'Water Supply Department', 
+        'electricity': 'Electricity Board',
+        'sanitation': 'Sanitation Department',
+        'traffic': 'Traffic Management',
+        'parks': 'Parks & Recreation'
+      };
+      
+      departmentName.textContent = deptNames[deptType] + ' - Jharkhand Coverage';
+      container.style.display = 'block';
+      
+      // Populate districts and wards
+      populateDistrictsAndWards();
+      
+      // Add expanded class to clicked card
+      document.querySelectorAll('.stat-card.expandable').forEach(card => {
+        card.classList.remove('expanded');
+      });
+      event.currentTarget.classList.add('expanded');
+    }
+
+    function closeDepartmentDetails() {
+      document.getElementById('departmentDetailsContainer').style.display = 'none';
+      document.querySelectorAll('.stat-card.expandable').forEach(card => {
+        card.classList.remove('expanded');
+      });
+    }
+
+    function populateDistrictsAndWards() {
+      const districtsList = document.getElementById('districtsList');
+      
+      // Jharkhand districts with their major wards/blocks
+      const jharkhandDistricts = {
+        'Ranchi': ['Kanke', 'Namkum', 'Ratu', 'Angara', 'Silli', 'Bundu', 'Sonahatu', 'Tamar', 'Karra', 'Mandar', 'Burmu', 'Ormanjhi', 'Lapung', 'Bero', 'Chanho', 'Itki'],
+        'Dhanbad': ['Dhanbad Sadar', 'Jharia', 'Chandankiyari', 'Nirsa', 'Baghmara', 'Tundi', 'Topchanchi', 'Gobindpur', 'Baliapur', 'Purbi Tundi'],
+        'Jamshedpur': ['Jamshedpur Sadar', 'Potka', 'Golmuri', 'Jugsalai', 'Ghatsila', 'Musabani', 'Dumaria', 'Patamda', 'Bahragora', 'Chakulia'],
+        'Bokaro': ['Bokaro Steel City', 'Chas', 'Chandankiyari', 'Peterwar', 'Jaridih', 'Nawadih', 'Kasmar', 'Gomia', 'Bermo'],
+        'Deoghar': ['Deoghar Sadar', 'Madhupur', 'Karon', 'Palojori', 'Sarwan', 'Sarath', 'Mohanpur', 'Devipur', 'Margomunda', 'Sonaraithari'],
+        'Dumka': ['Dumka Sadar', 'Jama', 'Jarmundi', 'Ranishwar', 'Ramgarh', 'Sikaripara', 'Shikaripara', 'Kathikund', 'Masalia', 'Gopikandar'],
+        'Giridih': ['Giridih Sadar', 'Bengabad', 'Gande', 'Dumri', 'Pirtand', 'Bagodar', 'Sariya', 'Dhanwar', 'Jamua', 'Tisri', 'Deori', 'Birni'],
+        'Hazaribagh': ['Hazaribagh Sadar', 'Barhi', 'Barkagaon', 'Barkatha', 'Bishnugarh', 'Chauparan', 'Churchu', 'Dadi', 'Daru', 'Ichak', 'Katkamdag', 'Katkamsandi', 'Keredari', 'Padma', 'Sadar', 'Tati Jhariya'],
+        'Koderma': ['Koderma Sadar', 'Chandwara', 'Domchanch', 'Jainagar', 'Markacho', 'Satgawan'],
+        'Chatra': ['Chatra Sadar', 'Hunterganj', 'Itkhori', 'Kanhachatti', 'Kunda', 'Lawalong', 'Mayurhand', 'Pratappur', 'Simaria', 'Tandwa'],
+        'Garhwa': ['Garhwa Sadar', 'Bhandaria', 'Bhawnathpur', 'Dandai', 'Dhara', 'Ketar', 'Kandi', 'Majhiaon', 'Meral', 'Nagaruntari', 'Pipra', 'Ramkanda', 'Ranka', 'Shaligram Ram Narayanpur'],
+        'Palamu': ['Palamu Sadar', 'Bishrampur', 'Chainpur', 'Chhatarpur', 'Daltonganj', 'Husainabad', 'Japla', 'Lesliganj', 'Mahuwadand', 'Manatu', 'Pandu', 'Patan', 'Pipra', 'Ramgarh', 'Satbarwa'],
+        'Latehar': ['Latehar Sadar', 'Balumath', 'Bariyatu', 'Chandwa', 'Garhwa', 'Herhanj', 'Mahuadanr', 'Manika', 'Panki', 'Pipra'],
+        'Lohardaga': ['Lohardaga Sadar', 'Bhandra', 'Bishunpur', 'Kisko', 'Kuru', 'Peshrar', 'Senha'],
+        'Gumla': ['Gumla Sadar', 'Bishunpur', 'Chainpur', 'Dumri', 'Ghaghra', 'Kamdara', 'Palkot', 'Raidih', 'Sisai', 'Tamar'],
+        'Simdega': ['Simdega Sadar', 'Bano', 'Bansjore', 'Bolba', 'Jaldega', 'Kolebira', 'Kurdeg', 'Pakartanr', 'Thethaitangar'],
+        'Khunti': ['Khunti Sadar', 'Arki', 'Karra', 'Murhu', 'Rania', 'Torpa'],
+        'West Singhbhum': ['Chaibasa Sadar', 'Chakradharpur', 'Goilkera', 'Gudri', 'Hussainabad', 'Jagannathpur', 'Jhinkpani', 'Khuntpani', 'Kuchai', 'Manoharpur', 'Noamundi', 'Sonua', 'Tantnagar'],
+        'East Singhbhum': ['Jamshedpur Sadar', 'Bahragora', 'Chakulia', 'Dhalbhumgarh', 'Ghatsila', 'Musabani', 'Patamda', 'Potka'],
+        'Saraikela Kharsawan': ['Saraikela Sadar', 'Chandil', 'Gamharia', 'Kuchai', 'Nimdih', 'Rajnagar'],
+        'Jamtara': ['Jamtara Sadar', 'Fatehpur', 'Karmatanr', 'Kundhit', 'Nala', 'Narayanpur'],
+        'Pakur': ['Pakur Sadar', 'Hiranpur', 'Litipara', 'Maheshpur', 'Pakuria', 'Poreyahat'],
+        'Sahebganj': ['Sahebganj Sadar', 'Barhait', 'Borio', 'Mahuadanr', 'Mandro', 'Pathna', 'Rajnagar', 'Taljhari'],
+        'Godda': ['Godda Sadar', 'Boarijor', 'Mahagama', 'Meherma', 'Pathargama', 'Poraiyahat', 'Sunderpahari', 'Thakurgangti']
+      };
+
+      let districtsHTML = '';
+      
+      Object.keys(jharkhandDistricts).forEach(district => {
+        const wards = jharkhandDistricts[district];
+        const wardStats = getWardStats(district, wards);
+        
+        districtsHTML += `
+          <div class="district-card">
+            <h5><i class="fas fa-map-marker-alt"></i> ${district} (${wardStats.total} issues)</h5>
+            <div class="wards-list">
+              ${wards.map(ward => {
+                const wardIssues = getWardIssueCount(district, ward);
+                return `<div class="ward-item" onclick="openWardDetails('${district}', '${ward}')" style="cursor:pointer;position:relative;">
+                  ${ward}
+                  ${wardIssues > 0 ? `<span style="position:absolute;top:-5px;right:-5px;background:#e74c3c;color:white;border-radius:50%;width:18px;height:18px;font-size:0.7rem;display:flex;align-items:center;justify-content:center;">${wardIssues}</span>` : ''}
+                </div>`;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      });
+      
+      districtsList.innerHTML = districtsHTML;
+    }
+    
+    function getWardStats(district, wards) {
+      let total = 0;
+      wards.forEach(ward => {
+        total += getWardIssueCount(district, ward);
+      });
+      return { total };
+    }
+    
+    function getWardIssueCount(district, ward) {
+      return allReports.filter(report => 
+        (report.locationText || '').toLowerCase().includes(ward.toLowerCase()) ||
+        (report.locationText || '').toLowerCase().includes(district.toLowerCase())
+      ).length;
+    }
+    
+    function openWardDetails(district, ward) {
+      const wardReports = allReports.filter(report => 
+        (report.locationText || '').toLowerCase().includes(ward.toLowerCase())
+      );
+      
+      const modal = document.createElement('div');
+      modal.className = 'modal';
+      modal.style.display = 'flex';
+      modal.innerHTML = `
+        <div class="modal-content" style="max-width:800px;">
+          <span class="close" onclick="this.closest('.modal').remove()">&times;</span>
+          <h2>${ward}, ${district} - Work Status</h2>
+          
+          <div style="margin:20px 0;">
+            <h3>Issues in this Ward: ${wardReports.length}</h3>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:15px 0;">
+              <div style="text-align:center;padding:15px;background:#fee;border-radius:8px;">
+                <h4 style="color:#e74c3c;">${wardReports.filter(r => r.status === 'Submitted').length}</h4>
+                <p>Pending</p>
+              </div>
+              <div style="text-align:center;padding:15px;background:#fef3e0;border-radius:8px;">
+                <h4 style="color:#f39c12;">${wardReports.filter(r => r.status === 'In Progress').length}</h4>
+                <p>In Progress</p>
+              </div>
+              <div style="text-align:center;padding:15px;background:#eef;border-radius:8px;">
+                <h4 style="color:#2ecc71;">${wardReports.filter(r => r.status === 'Resolved').length}</h4>
+                <p>Completed</p>
+              </div>
+            </div>
+          </div>
+          
+          <div style="margin:20px 0;">
+            <h3>Submit Work Completion</h3>
+            <div class="form-group">
+              <label>Select Issue to Mark Complete:</label>
+              <select id="wardIssueSelect" style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;">
+                <option value="">Select an issue...</option>
+                ${wardReports.filter(r => r.status !== 'Resolved').map(r => 
+                  `<option value="${r.id}">${r.title} (${r.status})</option>`
+                ).join('')}
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Completion Photo:</label>
+              <input type="file" id="completionPhoto" accept="image/*" style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;">
+            </div>
+            
+            <div class="form-group">
+              <label>Work Description:</label>
+              <textarea id="workDescription" rows="3" placeholder="Describe the work completed..." style="width:100%;padding:10px;border:2px solid #ddd;border-radius:8px;"></textarea>
+            </div>
+            
+            <button class="btn btn-success" onclick="submitWorkCompletion('${district}', '${ward}')">
+              <i class="fas fa-check"></i> Submit Work Completion
+            </button>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+    }
+    
+    function submitWorkCompletion(district, ward) {
+      const issueId = document.getElementById('wardIssueSelect').value;
+      const photoFile = document.getElementById('completionPhoto').files[0];
+      const description = document.getElementById('workDescription').value.trim();
+      
+      if (!issueId) {
+        showNotification('Please select an issue', 'error');
+        return;
+      }
+      
+      if (!photoFile) {
+        showNotification('Please attach a completion photo', 'error');
+        return;
+      }
+      
+      if (!description) {
+        showNotification('Please provide work description', 'error');
+        return;
+      }
+      
+      // Convert photo to base64
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const photoData = e.target.result;
+        
+        // Update the report
+        const reportIndex = allReports.findIndex(r => r.id === issueId);
+        if (reportIndex !== -1) {
+          allReports[reportIndex].status = 'Resolved';
+          allReports[reportIndex].completionPhoto = photoData;
+          allReports[reportIndex].workDescription = description;
+          allReports[reportIndex].completedBy = localStorage.getItem('adminDepartment') || 'Department';
+          allReports[reportIndex].completionDate = new Date().toISOString();
+          
+          // Add update
+          allReports[reportIndex].updates = allReports[reportIndex].updates || [];
+          allReports[reportIndex].updates.push({
+            type: 'resolved',
+            text: `Work completed in ${ward}, ${district}. ${description}`,
+            time: 'Just now'
+          });
+          
+          localStorage.setItem('allReports', JSON.stringify(allReports));
+          
+          // Send message to super admin
+          sendMessageToSuperAdmin(issueId, district, ward, description, photoData);
+          
+          // Notify citizen
+          createCitizenNotification(issueId, `✅ WORK COMPLETED! Your issue "${allReports[reportIndex].title}" has been resolved.\n\nLocation: ${ward}, ${district}\nCompleted by: ${localStorage.getItem('adminDepartment')}\nWork Description: ${description}\n\nThank you for your patience!`, 'resolved');
+          
+          showNotification('Work completion submitted successfully!');
+          
+          // Close modal and refresh
+          document.querySelector('.modal').remove();
+          updateDashboardStats();
+          updateTopCounters();
+        }
+      };
+      
+      reader.readAsDataURL(photoFile);
+    }
+    
+    function sendMessageToSuperAdmin(issueId, district, ward, description, photoData) {
+      const report = allReports.find(r => r.id === issueId);
+      if (!report) return;
+      
+      const department = localStorage.getItem('adminDepartment') || 'Department';
+      
+      // Create admin notification
+      let adminNotifications = JSON.parse(localStorage.getItem('adminNotifications') || '[]');
+      adminNotifications.push({
+        id: 'work_complete_' + Date.now(),
+        reportId: issueId,
+        department: department,
+        title: `Work Completed: ${report.title}`,
+        message: `Work has been completed for issue "${report.title}" in ${ward}, ${district}.`,
+        detailedMessage: `Issue Details:\n• ID: ${issueId}\n• Title: ${report.title}\n• Location: ${ward}, ${district}\n• Department: ${department}\n• Work Description: ${description}\n\nThe department has submitted completion photo and marked this issue as resolved.`,
+        timestamp: new Date().toISOString(),
+        read: false,
+        type: 'work_completion',
+        completionPhoto: photoData,
+        workDescription: description
+      });
+      
+      localStorage.setItem('adminNotifications', JSON.stringify(adminNotifications));
+    }
+
+    // Compute department performance with simple metrics by district
+    function computeDeptStats(){
+      const reports = JSON.parse(localStorage.getItem('allReports')||'[]');
+      const districts = ['Ranchi','Dhanbad','Jamshedpur','Bokaro'];
+      // naive location->district mapping; customize as needed
+      function detectDistrict(loc){
+        if (!loc) return 'Ranchi';
+        const l = loc.toLowerCase();
+        if (l.includes('dhanbad')) return 'Dhanbad';
+        if (l.includes('jam')) return 'Jamshedpur';
+        if (l.includes('bokaro')) return 'Bokaro';
+        return 'Ranchi';
+      }
+      const buckets = {};
+      reports.forEach(r=>{
+        const dept = r.department || 'Unassigned';
+        const dist = detectDistrict(r.locationText || r.location || '');
+        const key = dept+'|'+dist;
+        if (!buckets[key]) buckets[key] = { submitted:0, progress:0, resolved:0, times:[], dept, dist };
+        buckets[key].submitted++;
+        if ((r.status||'').toLowerCase()==='resolved') buckets[key].resolved++;
+        else if ((r.status||'').toLowerCase().includes('progress') || (r.status||'').toLowerCase()==='assigned') buckets[key].progress++;
+        // demo time numbers
+        if (r.assignedAt && r.deadline){
+          const t = (Date.parse(r.deadline)-Date.parse(r.assignedAt))/(1000*60*60*24);
+          if (!isNaN(t)) buckets[key].times.push(Math.max(0,t));
+        }
+      });
+      const rows = Object.values(buckets).map(b=>{
+        const rate = b.submitted? Math.round((b.resolved/b.submitted)*100):0;
+        const avg = b.times.length? (b.times.reduce((a,c)=>a+c,0)/b.times.length).toFixed(1)+' d' : '-';
+        return { dept:b.dept, dist:b.dist, submitted:b.submitted, progress:b.progress, resolved:b.resolved, rate:rate+'%', avg };
+      });
+      return rows;
+    }
+    function renderDeptPerformance(){
+      const tbody = document.querySelector('#deptPerfTable tbody');
+      if (!tbody) return;
+      const filter = (document.getElementById('districtFilter')||{value:'all'}).value;
+      const data = computeDeptStats().filter(r => filter==='all' ? true : r.dist===filter);
+      tbody.innerHTML = '';
+      if (data.length===0){ tbody.innerHTML = '<tr><td colspan="7">No data available</td></tr>'; return; }
+      data.forEach(r=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${escapeHtml(r.dept)}</td><td>${escapeHtml(r.dist)}</td><td>${r.submitted}</td><td>${r.progress}</td><td>${r.resolved}</td><td><span class="chip">${r.rate}</span></td><td>${r.avg}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    
+    function generateReport() {
+      showNotification('Generating report... This may take a moment.');
+      // In a real app, this would generate and download a report
+      setTimeout(() => {
+        showNotification('Report generated successfully. Download starting...');
+        
+        // Create a dummy download
+        const data = JSON.stringify(allReports, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'civicconnect-report-' + new Date().toISOString().split('T')[0] + '.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 2000);
+    }
+    
+    function logout(){
+      if (confirm('Are you sure you want to logout?')) {
+        showNotification('Logout successful! Redirecting to login page...');
+        setTimeout(()=> window.location.href='home.html',1500);
+      }
+    }
+    
+    /***********************************************************
+     * Notification checking
+     ***********************************************************/
+    function checkForNotifications() {
+      const adminDepartment = localStorage.getItem('adminDepartment');
+      
+      // Check for new reports
+      let newReports = allReports.filter(report => report.status === 'Submitted');
+      
+      // For non-super admins, only show reports for their department
+      if (adminDepartment && adminDepartment !== 'Super Admin') {
+        newReports = newReports.filter(report => report.department === adminDepartment);
+      }
+      
+      if (newReports.length > 0) {
+        showNotification(`${newReports.length} new reports need review`, 'info');
+      }
+      
+      // Check for department-specific notifications
+      let departmentNotifications = JSON.parse(localStorage.getItem('departmentNotifications')) || [];
+      let unreadNotifications = departmentNotifications.filter(notif => !notif.read);
+      
+      // For non-super admins, only show notifications for their department
+      if (adminDepartment && adminDepartment !== 'Super Admin') {
+        unreadNotifications = unreadNotifications.filter(notif => notif.department === adminDepartment);
+      }
+      
+      if (unreadNotifications.length > 0) {
+        showNotification(`${unreadNotifications.length} new department messages`, 'info');
+      }
+    }
+
+    // Enhanced notification system for real-time updates
+    let lastReportCount = 0;
+    function checkForNewReports() {
+      try {
+        const adminDepartment = localStorage.getItem('adminDepartment');
+        const currentReports = JSON.parse(localStorage.getItem('allReports') || '[]');
+        let newReportCount = currentReports.filter(report => report.status === 'Submitted').length;
+        
+        // For non-super admins, only count reports for their department
+        if (adminDepartment && adminDepartment !== 'Super Admin') {
+          newReportCount = currentReports.filter(report => 
+            report.status === 'Submitted' && report.department === adminDepartment
+          ).length;
+        }
+        
+        // Check for department notifications
+        let departmentNotifications = JSON.parse(localStorage.getItem('departmentNotifications') || '[]');
+        let unreadNotifications = departmentNotifications.filter(notif => !notif.read);
+        
+        // For non-super admins, only count notifications for their department
+        if (adminDepartment && adminDepartment !== 'Super Admin') {
+          unreadNotifications = unreadNotifications.filter(notif => notif.department === adminDepartment);
+        }
+        
+        const totalNotifications = newReportCount + unreadNotifications.length;
+        
+        // Update notification badge
+        const badge = document.getElementById('notificationBadge');
+        if (badge) {
+          if (totalNotifications > 0) {
+            badge.textContent = totalNotifications;
+            badge.style.display = 'flex';
+          } else {
+            badge.style.display = 'none';
+          }
+        }
+        
+        if (newReportCount > lastReportCount) {
+          const newReports = currentReports.filter(report => 
+            report.status === 'Submitted' && 
+            new Date(report.timestamp) > new Date(Date.now() - 30000) // Last 30 seconds
+          );
+          
+          if (newReports.length > 0) {
+            newReports.forEach(report => {
+              showNotification(`New report: ${report.title}`, 'info');
+              // Play notification sound if available
+              try {
+                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUarm7blmGgU7k9n1unEiBC13yO/eizEIHWq+8+OWT');
+                audio.volume = 0.3;
+                audio.play().catch(() => {}); // Ignore errors if audio fails
+              } catch (e) {
+                // Ignore audio errors
+              }
+            });
+          }
+        }
+        
+        lastReportCount = newReportCount;
+      } catch (e) {
+        console.error('Error checking for new reports:', e);
+      }
+    }
+
+    /***********************************************************
+     * Deadline and escalation checks
+     ***********************************************************/
+    function sendEmailIfConfigured(toEmail, subject, message) {
+      try {
+        if (window.emailjs && emailjs.send) {
+          emailjs.send('default_service', 'template_default', {
+            to_email: toEmail,
+            subject: subject,
+            message: message
+          });
+        } else {
+          // Fallback: open mailto (non-blocking)
+          const mailto = `mailto:${encodeURIComponent(toEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+          const a = document.createElement('a');
+          a.href = mailto;
+          a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
+      } catch (e) {
+        // ignore email errors in client-only mode
+      }
+    }
+
+    function checkDeadlines() {
+      try { allReports = JSON.parse(localStorage.getItem('allReports')) || allReports; } catch(e){}
+      let changed = false;
+      const now = Date.now();
+      allReports.forEach(report => {
+        if (!report) return;
+        if (!report.deadline) return;
+        if (report.status && report.status.toLowerCase() === 'resolved') return;
+        const due = Date.parse(report.deadline);
+        if (!isNaN(due) && now > due && !report.overdueNotified) {
+          // Notify admin and user
+          showNotification(`Deadline missed for ${report.id}: ${report.title}`, 'error');
+          createCitizenNotification(report.id, 'Update: Your report is delayed beyond the deadline. We apologize for the inconvenience.');
+          // Try email to the user if available
+          if (report.userEmail) {
+            sendEmailIfConfigured(report.userEmail, 'CivicConnect: Report Delay Notification', `Your report (${report.id}) is delayed beyond the deadline. We are working to resolve it as soon as possible.`);
+          }
+          report.overdueNotified = true;
+          changed = true;
+        }
+      });
+      if (changed) {
+        localStorage.setItem('allReports', JSON.stringify(allReports));
+      }
+    }
+  </script>
+</body>
+</html>
