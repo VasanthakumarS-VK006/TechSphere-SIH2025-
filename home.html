@@ -360,7 +360,7 @@
             text-align: center;
         }
         
-        .citizen-login,
+        .userdashboard,
         .admin-login,
         .ward-login {
             background-color: #e8f5e8;
@@ -1577,8 +1577,8 @@
                             <i class="fas fa-chevron-down"></i>
                         </a>
                         <div class="login-dropdown">
-                            <a href="citizen-login.html" class="login-option citizen-login">
-                                <i class="fas fa-user"></i> Citizen Login
+                            <a href="userdashboard.html" class="">
+                                <i class="fas fa-user"></i> Citizen dashboard
                             </a>
                             <a href="adminlogin.html" class="login-option admin-login">
                                 <i class="fas fa-lock"></i> Admin Login
@@ -1599,7 +1599,7 @@
                 <h1>Transform Jharkhand Together</h1>
                 <p>Report civic issues, track their resolution, and help build a better Jharkhand. Your voice matters in shaping our community.</p>
                 <div class="hero-buttons">
-                    <a href="citizen-login.html" class="btn btn-pulse">
+                    <a href="userdashboard.html" class="btn btn-pulse">
                         <i class="fas fa-plus-circle"></i> Report an Issue
                     </a>
                 </div>
@@ -1684,7 +1684,7 @@
                     <div class="category-content">
                         <h3>Road Maintenance</h3>
                         <p>Report potholes, damaged roads, and missing signage to help keep our roads safe and well-maintained.</p>
-                        <a href="citizen-login.html" class="category-link">Report Issue <i class="fas fa-arrow-right"></i></a>
+                        <a href="userdashboard.html" class="category-link">Report Issue <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </div>
                 <div class="category-card">
@@ -1694,7 +1694,7 @@
                     <div class="category-content">
                         <h3>Waste Management</h3>
                         <p>Report overflowing bins, garbage dumping, and cleaning issues to maintain cleanliness in your area.</p>
-                        <a href="citizen-login.html" class="category-link">Report Issue <i class="fas fa-arrow-right"></i></a>
+                        <a href="userdashboard.html" class="category-link">Report Issue <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </div>
                 <div class="category-card">
@@ -1704,7 +1704,7 @@
                     <div class="category-content">
                         <h3>Water Supply</h3>
                         <p>Report water leakage, contamination, and supply issues to ensure clean and reliable water access.</p>
-                        <a href="citizen-login.html" class="category-link">Report Issue <i class="fas fa-arrow-right"></i></a>
+                        <a href="userdashboard.html" class="category-link">Report Issue <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </div>
                 <div class="category-card">
@@ -1714,7 +1714,7 @@
                     <div class="category-content">
                         <h3>Street Lights</h3>
                         <p>Report malfunctioning or damaged street lights in your area to improve safety and visibility at night.</p>
-                        <a href="citizen-login.html" class="category-link">Report Issue <i class="fas fa-arrow-right"></i></a>
+                        <a href="userdashboard.html" class="category-link">Report Issue <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </div>
             </div>
@@ -1769,7 +1769,7 @@
                 <h2>Ready to Make a Difference?</h2>
                 <p>Join thousands of citizens who are transforming Jharkhand by reporting and resolving civic issues</p>
                 <div class="cta-buttons">
-                    <a href="citizen-login.html" class="btn btn-primary">
+                    <a href="userdashboard.html" class="btn btn-primary">
                         <i class="fas fa-play"></i>
                         <span>Get Started Now</span>
                     </a>
@@ -1821,11 +1821,11 @@
                 <div class="footer-links">
                     <h3>Services</h3>
                     <ul>
-                        <li><a href="citizen-login.html">Road Maintenance</a></li>
-                        <li><a href="citizen-login.html">Water Supply</a></li>
-                        <li><a href="citizen-login.html">Waste Management</a></li>
-                        <li><a href="citizen-login.html">Street Lights</a></li>
-                        <li><a href="citizen-login.html">Drainage Issues</a></li>
+                        <li><a href="userdashboard.html">Road Maintenance</a></li>
+                        <li><a href="userdashboard.html">Water Supply</a></li>
+                        <li><a href="userdashboard.html">Waste Management</a></li>
+                        <li><a href="userdashboard.html">Street Lights</a></li>
+                        <li><a href="userdashboard.html">Drainage Issues</a></li>
                     </ul>
                 </div>
                 <div class="footer-newsletter">
@@ -1934,9 +1934,9 @@
                     showNotification('Issue reported successfully!', 'success');
                     
                     // If it's the Get Started button, navigate after showing the notification
-                    if (button.href && button.href.includes('citizen-login.html')) {
+                    if (button.href && button.href.includes('userdashboard.html')) {
                         setTimeout(() => {
-                            window.location.href = 'citizen-login.html';
+                            window.location.href = 'userdashboard.html';
                         }, 1000); // 1 second delay before navigation
                     }
                 });
@@ -2004,7 +2004,7 @@
             }
             
             // Handle login dropdown navigation
-            const citizenLoginLink = document.querySelector('.citizen-login');
+            const citizenLoginLink = document.querySelector('.userdashboard');
             const adminLoginLink = document.querySelector('.admin-login');
             
             if (citizenLoginLink) {
