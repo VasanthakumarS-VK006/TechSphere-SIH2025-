@@ -57,6 +57,20 @@ class Reports(db.Model):
         self.time = time
         self.department = department
 
+
+
+class Admin(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    mail = db.Column(db.String, nullable=False)
+    password = db.Column(db.String, nullable=False)
+    department = db.Column(db.String, nullable=False)
+
+    def __init__(self, mail, password, department):
+        self.mail = mail
+        self.password = password
+        self.department = department
+    
+
 # --- Initialize DB tables once ---
 with app.app_context():
     db.create_all()
@@ -143,6 +157,34 @@ def InsertReport():
     db.session.add(rp)
     db.session.commit()
     return jsonify({"message" : "Success"})
+
+
+
+@app.route("/loginAdmin", methods=["POST"])
+def loginAdmin():
+    data = request.get_json() or {}
+
+    email = data.get("email")
+    password = data.get("password")
+    department = data.get("department")
+
+    if not email or not password or not department:
+        return jsonify({'isAdmin': False}), 400
+
+    admin = Admin.query.filter_by(mail=email, department=department).first()
+    if not admin:
+        return jsonify({'isAdmin': False}), 401
+
+    if check_password_hash(admin.password, password):
+        return jsonify({'isAdmin': True})
+
+    return jsonify({'isAdmin': False}), 401
+    
+
+
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
